@@ -1,5 +1,5 @@
 <template>
-  <BeerTable />
+  <beer-table />
 </template>
 
 <script lang="ts">

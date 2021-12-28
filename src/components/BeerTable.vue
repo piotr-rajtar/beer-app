@@ -1,5 +1,5 @@
 <template>
-  <button>Click to fetch beer data</button>
+  <button data-test="fetch-button">Click to fetch beer data</button>
 </template>
 
 <script lang="ts">
