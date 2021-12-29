@@ -60,6 +60,16 @@ export interface Beer {
   volume: Volume;
 }
 
+export interface BeerSimplified {
+  id: number;
+  name: string;
+  first_brewed: number;
+  abv: number;
+  ibu: number;
+  ebc: number;
+  ph: number;
+}
+
 export interface State {
   beers: Beer[];
 }

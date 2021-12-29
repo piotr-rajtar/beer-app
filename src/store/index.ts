@@ -1,5 +1,5 @@
 import { createStore } from 'vuex';
-import { Beer, State } from './store-typings';
+import { Beer, BeerSimplified, State } from './store-typings';
 import { API_ADDRESS } from './const';
 import axios from 'axios';
 
@@ -10,8 +10,21 @@ const state: State = {
 export default createStore({
   state,
   getters: {
-    getBeers(state): Beer[] {
+    getAllBeersData(state): Beer[] {
       return state.beers;
+    },
+    getSimplifiedBeersData(state): BeerSimplified[] {
+      return state.beers.map((beer) => {
+        return {
+          id: beer.id,
+          name: beer.name,
+          first_brewed: beer.first_brewed,
+          abv: beer.abv,
+          ibu: beer.ibu,
+          ebc: beer.ebc,
+          ph: beer.ph,
+        };
+      });
     },
   },
   mutations: {
