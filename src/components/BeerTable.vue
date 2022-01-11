@@ -1,19 +1,29 @@
 <template>
-  <button data-test="fetch-button" @click="downloadBeers">
+  <button :class="style.button" data-test="fetch-button" @click="downloadBeers">
     Click to fetch beer data
   </button>
-  <table>
+  <table :class="style.table" data-test="beer-table">
     <thead>
       <tr>
-        <td v-for="(header, key) in tableHeaders" :key="key">{{ header }}</td>
+        <td
+          v-for="(header, key) in tableHeaders"
+          :class="style.tableCell"
+          :key="key"
+        >
+          {{ header }}
+        </td>
       </tr>
     </thead>
-    <tbody>
+    <tbody data-test="table-body">
       <tr v-for="beer in simplifiedBeersData" :key="beer.id">
-        <td v-for="key in Object.keys(beer)" :key="key + beer.id">
+        <td
+          v-for="key in Object.keys(beer)"
+          :class="style.tableCell"
+          :key="key + beer.id"
+        >
           {{ beer[key] }}
         </td>
-        <td>More</td>
+        <td :class="style.tableCell">More</td>
       </tr>
     </tbody>
   </table>
@@ -59,5 +69,19 @@ export default class BeerTable extends Vue {
 }
 </script>
 
-<!-- <style scoped lang="scss">
-</style> -->
+<style scoped lang="scss" module="style">
+.button {
+  margin-bottom: 20px;
+  padding: 10px;
+}
+
+.table {
+  border-collapse: collapse;
+  text-align: center;
+}
+
+.tableCell {
+  border: 1px solid black;
+  padding: 4px;
+}
+</style>

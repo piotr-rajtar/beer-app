@@ -17,19 +17,19 @@ export default createStore({
       return state.beers.map((beer) => {
         return {
           id: beer.id,
-          name: beer.name,
-          first_brewed: beer.first_brewed,
-          abv: beer.abv,
-          ibu: beer.ibu,
-          ebc: beer.ebc,
-          ph: beer.ph,
+          name: beer.name || '-',
+          first_brewed: beer.first_brewed || '-',
+          abv: beer.abv || '-',
+          ibu: beer.ibu || '-',
+          ebc: beer.ebc || '-',
+          ph: beer.ph || '-',
         };
       });
     },
   },
   mutations: {
     addBeers(state, payload: Beer[]) {
-      state.beers = payload;
+      state.beers = [...payload];
     },
   },
   actions: {

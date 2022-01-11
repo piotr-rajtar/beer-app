@@ -37,22 +37,22 @@ interface Method {
 }
 
 export interface Beer {
-  abv: number;
+  abv: number | string;
   attenuation_level: number;
   boil_volume: Volume;
   brewers_tips: string;
   contributed_by: string;
   description: string;
-  ebc: number;
-  first_brewed: number;
+  ebc: number | string;
+  first_brewed: string;
   food_pairing: string[];
-  ibu: number;
+  ibu: number | string;
   id: number;
   image_url: string;
   ingredients: Ingredients;
   method: Method;
   name: string;
-  ph: number;
+  ph: number | string;
   srm: number;
   tagline: string;
   target_fg: number;
@@ -63,11 +63,11 @@ export interface Beer {
 export interface BeerSimplified {
   id: number;
   name: string;
-  first_brewed: number;
-  abv: number;
-  ibu: number;
-  ebc: number;
-  ph: number;
+  first_brewed: string;
+  abv: number | string;
+  ibu: number | string;
+  ebc: number | string;
+  ph: number | string;
 }
 
 export interface State {
