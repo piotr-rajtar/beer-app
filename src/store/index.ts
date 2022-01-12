@@ -1,5 +1,5 @@
 import { createStore } from 'vuex';
-import { Beer, BeerSimplified, State } from './store-typings';
+import { Beer, BeerSimplified, State } from '@/types/typings';
 import { API_ADDRESS } from './const';
 import axios from 'axios';
 

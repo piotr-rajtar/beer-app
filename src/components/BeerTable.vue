@@ -32,7 +32,7 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import { mapActions, mapGetters } from 'vuex';
-import { BeerSimplified } from '@/store/store-typings';
+import { BeerSimplified } from '@/types/typings';
 
 @Options({
   methods: {
