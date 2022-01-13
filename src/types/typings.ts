@@ -70,6 +70,12 @@ export interface BeerSimplified {
   ph: number | string;
 }
 
+type TableKeys = 'id' | 'name' | 'first_brewed' | 'abv' | 'ibu' | 'ebc' | 'ph';
+
+export type BeerSimplifiedI = {
+  [key in TableKeys]: number | string;
+};
+
 export interface State {
   beers: Beer[];
 }

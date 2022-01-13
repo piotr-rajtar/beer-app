@@ -1,6 +1,6 @@
 import { createStore } from 'vuex';
-import { Beer, BeerSimplified, State } from '@/types/typings';
-import { API_ADDRESS } from './const';
+import { Beer, BeerSimplified, State, BeerSimplifiedI } from '@/types/typings';
+import { API_ADDRESS, tableHeaders } from './const';
 import axios from 'axios';
 
 const state: State = {
@@ -15,15 +15,11 @@ export default createStore({
     },
     getSimplifiedBeersData(state): BeerSimplified[] {
       return state.beers.map((beer) => {
-        return {
-          id: beer.id,
-          name: beer.name || '-',
-          first_brewed: beer.first_brewed || '-',
-          abv: beer.abv || '-',
-          ibu: beer.ibu || '-',
-          ebc: beer.ebc || '-',
-          ph: beer.ph || '-',
-        };
+        const simplifiedBeer: BeerSimplifiedI = {} as BeerSimplifiedI;
+        tableHeaders.forEach(
+          (item) => (simplifiedBeer[item] = beer[item] || '-')
+        );
+        return simplifiedBeer as BeerSimplified;
       });
     },
   },
