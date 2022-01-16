@@ -1,14 +1,14 @@
 <template>
-  <beer-table />
+  <beer-table-view />
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import BeerTable from './components/BeerTable.vue';
+import BeerTableView from './containers/BeerTableView.vue';
 
 @Options({
   components: {
-    BeerTable,
+    BeerTableView,
   },
 })
 export default class App extends Vue {}

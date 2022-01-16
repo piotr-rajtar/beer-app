@@ -78,4 +78,5 @@ export type BeerSimplifiedI = {
 
 export interface State {
   beers: Beer[];
+  loadingStatus: boolean;
 }
