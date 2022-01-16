@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import { createStore } from 'vuex';
 import BeerTable from '@/components/BeerTable.vue';
 import { beers, TestStore } from './mockedBeerData';
-import { BeerSimplified } from '@/store/store-typings';
+import { BeerSimplified } from '@/types/typings';
 
 const store = createStore({
   state() {

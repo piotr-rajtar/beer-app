@@ -1,4 +1,4 @@
-import { BeerSimplified } from '@/store/store-typings';
+import { BeerSimplified } from '@/types/typings';
 
 export const beers: BeerSimplified[] = [
   {
