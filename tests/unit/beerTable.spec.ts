@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import { createStore } from 'vuex';
-import BeerTable from '@/components/BeerTable.vue';
+import BeerTableView from '@/containers/BeerTableView.vue';
 import { beers, TestStore } from './mockedBeerData';
 import { BeerSimplified } from '@/types/typings';
 
@@ -8,6 +8,7 @@ const store = createStore({
   state() {
     return {
       beers: [],
+      loadingStatus: false,
     };
   },
   getters: {
@@ -16,8 +17,8 @@ const store = createStore({
     },
   },
   mutations: {
-    addBeers(state: TestStore) {
-      state.beers = [...beers];
+    addBeers(state: TestStore, payload = beers) {
+      state.beers = [...payload];
     },
   },
   actions: {
@@ -27,9 +28,20 @@ const store = createStore({
   },
 });
 
-describe('BeerTable.vue', () => {
-  it('renders button correctly', () => {
-    const wrapper = shallowMount(BeerTable, {
+//Component rendering
+describe('BeerTableView.vue', () => {
+  beforeEach(() => (store.state.beers = []));
+  it('renders header correctly', () => {
+    const wrapper = shallowMount(BeerTableView, {
+      global: {
+        plugins: [store],
+      },
+    });
+    const header = wrapper.find('[data-test="header"]');
+    expect(header.exists()).toBe(true);
+  });
+  it('renders fetch button correctly', () => {
+    const wrapper = shallowMount(BeerTableView, {
       global: {
         plugins: [store],
       },
@@ -37,25 +49,25 @@ describe('BeerTable.vue', () => {
     const button = wrapper.find('[data-test="fetch-button"]');
     expect(button.exists()).toBe(true);
   });
-  it('renders table correctly', () => {
-    const wrapper = shallowMount(BeerTable, {
+  it('renders beer table correctly', async () => {
+    const wrapper = shallowMount(BeerTableView, {
       global: {
         plugins: [store],
       },
     });
+    await wrapper.vm.downloadBeers();
     const table = wrapper.find('[data-test="beer-table"]');
     expect(table.exists()).toBe(true);
   });
-  it('get display vuex store data after button click', async () => {
-    const wrapper = shallowMount(BeerTable, {
+  it('renders no data component correctly', async () => {
+    const wrapper = shallowMount(BeerTableView, {
       global: {
         plugins: [store],
       },
     });
-
-    const button = wrapper.find('[data-test="fetch-button"]');
-    await button.trigger('click');
-    const tableBody = wrapper.find('[data-test="table-body"]');
-    expect(tableBody.find('tr').exists()).toBe(true);
+    await wrapper.vm.downloadBeers();
+    await store.commit('addBeers', []);
+    const noData = wrapper.find('[data-test="no-data"]');
+    expect(noData.exists()).toBe(true);
   });
 });

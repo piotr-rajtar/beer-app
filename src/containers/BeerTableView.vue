@@ -1,16 +1,17 @@
 <template>
-  <h1>Click to fetch data</h1>
+  <h1 data-test="header">Click to fetch data</h1>
   <fetch-button data-test="fetch-button" @fetch="debouncedFetchClick()">
     Let's brew!
   </fetch-button>
   <loader v-if="$store.state.loadingStatus" />
   <beer-table
     v-if="shouldTableBeVisibile"
-    :table-headers="tableHeaders"
     :beer-data="simplifiedBeersData"
     data-test="beer-table"
   />
-  <no-data v-if="shouldNoDataBeVisibile">No beers found</no-data>
+  <no-data data-test="no-data" v-if="shouldNoDataBeVisibile">
+    No beers found
+  </no-data>
 </template>
 
 <script lang="ts">
@@ -63,19 +64,6 @@ export default class BeerTableView extends Vue {
       !this.$store.state.loadingStatus &&
       this.wasFetchButtonEverClicked
     );
-  }
-
-  get tableHeaders(): string[] {
-    return [
-      'ID',
-      'NAME',
-      'FIRST BREWED',
-      'ALCOHOL BY VOLUME (ABV)',
-      'INTERNATIONAL BITTERING UNIT (IBU)',
-      'COLOR UNITS (EBC)',
-      'PH',
-      'MORE',
-    ];
   }
 
   async downloadBeers(): Promise<void> {

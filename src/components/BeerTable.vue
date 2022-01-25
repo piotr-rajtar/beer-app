@@ -11,7 +11,7 @@
         </td>
       </tr>
     </thead>
-    <tbody data-test="table-body">
+    <tbody>
       <tr v-for="beer in beerData" :key="beer.id">
         <td
           v-for="key in Object.keys(beer)"
@@ -31,15 +31,25 @@ import { Vue, prop } from 'vue-class-component';
 import { BeerSimplified } from '@/types/typings';
 
 class Props {
-  tableHeaders: string[] = prop({
-    required: true,
-  });
   beerData: BeerSimplified[] = prop({
     required: true,
   });
 }
 
-export default class BeerTable extends Vue.with(Props) {}
+export default class BeerTable extends Vue.with(Props) {
+  get tableHeaders(): string[] {
+    return [
+      'ID',
+      'NAME',
+      'FIRST BREWED',
+      'ALCOHOL BY VOLUME (ABV)',
+      'INTERNATIONAL BITTERING UNIT (IBU)',
+      'COLOR UNITS (EBC)',
+      'PH',
+      'MORE',
+    ];
+  }
+}
 </script>
 
 <style scoped lang="scss" module="style">

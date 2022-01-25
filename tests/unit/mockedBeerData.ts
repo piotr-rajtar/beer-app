@@ -14,4 +14,5 @@ export const beers: BeerSimplified[] = [
 
 export interface TestStore {
   beers: BeerSimplified[];
+  loadingStatus: boolean;
 }
