@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import BeerTableView from './containers/BeerTableView.vue';
+import BeerTableView from './views/BeerTableView.vue';
 
 @Options({
   components: {

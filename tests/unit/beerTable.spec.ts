@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import { createStore } from 'vuex';
-import BeerTableView from '@/containers/BeerTableView.vue';
+import BeerTableView from '@/views/BeerTableView.vue';
 import { beers, TestStore } from './mockedBeerData';
 import { BeerSimplified } from '@/types/typings';
 

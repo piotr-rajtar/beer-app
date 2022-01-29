@@ -1,8 +1,8 @@
 <template>
   <h1 data-test="header">Click to fetch data</h1>
-  <fetch-button data-test="fetch-button" @fetch="debouncedFetchClick()">
+  <beer-button data-test="fetch-button" @click="debouncedFetchClick()">
     Let's brew!
-  </fetch-button>
+  </beer-button>
   <loader v-if="$store.state.loadingStatus" />
   <beer-table
     v-if="shouldTableBeVisibile"
@@ -18,10 +18,10 @@
 import { Options, Vue } from 'vue-class-component';
 import { mapActions, mapGetters } from 'vuex';
 import { BeerSimplified } from '@/types/typings';
-import BeerTable from '@/components/BeerTable.vue';
-import FetchButton from '@/components/FetchButton.vue';
-import NoData from '@/components/NoData.vue';
-import Loader from '@/components/Loader.vue';
+import BeerTable from '@/components/beerTable/BeerTable.vue';
+import BeerButton from '@/components/shared/BeerButton.vue';
+import NoData from '@/components/shared/NoData.vue';
+import Loader from '@/components/shared/Loader.vue';
 import debounce from 'lodash/debounce';
 import { DebouncedFunc } from 'lodash';
 
@@ -34,7 +34,7 @@ import { DebouncedFunc } from 'lodash';
   },
   components: {
     BeerTable,
-    FetchButton,
+    BeerButton,
     NoData,
     Loader,
   },
