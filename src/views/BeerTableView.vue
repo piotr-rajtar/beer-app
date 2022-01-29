@@ -4,6 +4,11 @@
     Let's brew!
   </beer-button>
   <loader v-if="$store.state.loadingStatus" />
+  <beer-table-navigation
+    v-if="shouldTableBeVisibile"
+    @change="onNavChange"
+    data-test="beer-table-nav"
+  />
   <beer-table
     v-if="shouldTableBeVisibile"
     :beer-data="simplifiedBeersData"
@@ -12,13 +17,21 @@
   <no-data data-test="no-data" v-if="shouldNoDataBeVisibile">
     No beers found
   </no-data>
+  <component
+    v-if="shouldTableBeVisibile"
+    :is="loadingType"
+    :data-test="loadingType"
+  />
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import { mapActions, mapGetters } from 'vuex';
-import { BeerSimplified } from '@/types/typings';
+import { BeerSimplified, LoadingType } from '@/types/typings';
+import BeerTableNavigation from '@/components/beerTable/BeerTableNavigation.vue';
 import BeerTable from '@/components/beerTable/BeerTable.vue';
+import Pagination from '@/components/beerTable/Pagination.vue';
+import LoadMore from '@/components/beerTable/LoadMore.vue';
 import BeerButton from '@/components/shared/BeerButton.vue';
 import NoData from '@/components/shared/NoData.vue';
 import Loader from '@/components/shared/Loader.vue';
@@ -37,6 +50,9 @@ import { DebouncedFunc } from 'lodash';
     BeerButton,
     NoData,
     Loader,
+    Pagination,
+    LoadMore,
+    BeerTableNavigation,
   },
 })
 export default class BeerTableView extends Vue {
@@ -47,6 +63,7 @@ export default class BeerTableView extends Vue {
     this.downloadBeers,
     300
   );
+  loadingType: LoadingType = 'LoadMore';
 
   get simplifiedBeersData(): BeerSimplified[] {
     return this.getSimplifiedBeersData;
@@ -64,6 +81,10 @@ export default class BeerTableView extends Vue {
       !this.$store.state.loadingStatus &&
       this.wasFetchButtonEverClicked
     );
+  }
+
+  onNavChange(navType: LoadingType): void {
+    this.loadingType = navType;
   }
 
   async downloadBeers(): Promise<void> {

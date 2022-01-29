@@ -80,3 +80,5 @@ export interface State {
   beers: Beer[];
   loadingStatus: boolean;
 }
+
+export type LoadingType = 'LoadMore' | 'Pagination';
