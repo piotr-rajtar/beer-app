@@ -1,32 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
-import { createStore } from 'vuex';
 import BeerTableView from '@/views/BeerTableView.vue';
-import { beers, TestStore } from './mockedBeerData';
-import { BeerSimplified } from '@/types/typings';
-
-const store = createStore({
-  state() {
-    return {
-      beers: [],
-      loadingStatus: false,
-    };
-  },
-  getters: {
-    getSimplifiedBeersData(state: TestStore): BeerSimplified[] {
-      return state.beers;
-    },
-  },
-  mutations: {
-    addBeers(state: TestStore, payload = beers) {
-      state.beers = [...payload];
-    },
-  },
-  actions: {
-    fetchBeers() {
-      this.commit('addBeers');
-    },
-  },
-});
+import { store } from './mockedBeerData';
 
 //Component rendering
 describe('BeerTableView.vue', () => {

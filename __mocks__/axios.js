@@ -1,19 +1,5 @@
-import { BeerSimplified, Beer } from '@/types/typings';
-import { createStore } from 'vuex';
-
-export const beers: BeerSimplified[] = [
-  {
-    id: 1,
-    name: 'Buzz',
-    first_brewed: '09/2007',
-    abv: 4.5,
-    ibu: 60,
-    ebc: 20,
-    ph: 4.4,
-  },
-];
-
-export const beerPayload: Beer[] = [
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+const beerPayload = [
   {
     abv: 4.5,
     attenuation_level: 75,
@@ -49,31 +35,7 @@ export const beerPayload: Beer[] = [
   },
 ];
 
-export interface TestStore {
-  beers: BeerSimplified[];
-  loadingStatus: boolean;
-}
-
-export const store = createStore({
-  state() {
-    return {
-      beers: [],
-      loadingStatus: false,
-    };
-  },
-  getters: {
-    getSimplifiedBeersData(state: TestStore): BeerSimplified[] {
-      return state.beers;
-    },
-  },
-  mutations: {
-    addBeers(state: TestStore, payload = beers) {
-      state.beers = [...payload];
-    },
-  },
-  actions: {
-    fetchBeers() {
-      this.commit('addBeers');
-    },
-  },
-});
+const axios = {
+  get: () => new Promise((res) => res({ data: beerPayload })),
+};
+export default axios;
