@@ -11,8 +11,9 @@
   />
   <beer-table
     v-if="shouldTableBeVisibile"
-    :beer-data="simplifiedBeersData"
+    :beer-data="beersData"
     data-test="beer-table"
+    @sort="onSortClick"
   />
   <no-data data-test="no-data" v-if="shouldNoDataBeVisibile">
     No beers found
@@ -27,7 +28,14 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import { mapActions, mapGetters } from 'vuex';
-import { BeerSimplified, LoadingType } from '@/types/typings';
+import {
+  BeerSimplified,
+  LoadingType,
+  SortDirection,
+  SortEventData,
+  SortFunction,
+  SortBy,
+} from '@/types/typings';
 import BeerTableNavigation from '@/components/beerTable/BeerTableNavigation.vue';
 import BeerTable from '@/components/beerTable/BeerTable.vue';
 import Pagination from '@/components/beerTable/Pagination.vue';
@@ -43,7 +51,7 @@ import { DebouncedFunc } from 'lodash';
     ...mapActions(['fetchBeers']),
   },
   computed: {
-    ...mapGetters(['getSimplifiedBeersData']),
+    ...mapGetters(['getSimplifiedBeersData', 'getSortedBeersData']),
   },
   components: {
     BeerTable,
@@ -58,15 +66,20 @@ import { DebouncedFunc } from 'lodash';
 export default class BeerTableView extends Vue {
   fetchBeers!: () => void;
   getSimplifiedBeersData!: BeerSimplified[];
+  getSortedBeersData!: SortFunction;
   wasFetchButtonEverClicked: boolean = false;
   debouncedFetchClick: DebouncedFunc<() => void> = debounce(
     this.downloadBeers,
     300
   );
   loadingType: LoadingType = 'LoadMore';
+  sortDirection: SortDirection = 'none';
+  sortBy: SortBy | null = null;
 
-  get simplifiedBeersData(): BeerSimplified[] {
-    return this.getSimplifiedBeersData;
+  get beersData(): BeerSimplified[] {
+    return this.sortDirection === 'none'
+      ? this.getSimplifiedBeersData
+      : this.getSortedBeersData(this.sortDirection, this.sortBy as SortBy);
   }
 
   get shouldTableBeVisibile(): boolean {
@@ -85,6 +98,11 @@ export default class BeerTableView extends Vue {
 
   onNavChange(navType: LoadingType): void {
     this.loadingType = navType;
+  }
+
+  onSortClick(event: SortEventData): void {
+    this.sortDirection = event.sortDirection;
+    this.sortBy = event.sortBy;
   }
 
   async downloadBeers(): Promise<void> {

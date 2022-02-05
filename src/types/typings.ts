@@ -82,3 +82,17 @@ export interface State {
 }
 
 export type LoadingType = 'LoadMore' | 'Pagination';
+
+export type SortDirection = 'asc' | 'dsc' | 'none';
+
+export type SortBy = keyof BeerSimplified;
+
+export interface SortEventData {
+  sortDirection: SortDirection;
+  sortBy: SortBy | null;
+}
+
+export type SortFunction = (
+  sortDirection: SortDirection,
+  sortBy: SortBy
+) => BeerSimplified[];

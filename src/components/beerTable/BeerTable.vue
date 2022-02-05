@@ -3,11 +3,25 @@
     <thead>
       <tr>
         <td
-          v-for="(header, key) in tableHeaders"
+          v-for="header in tableHeaders"
           :class="style.tableCell"
-          :key="key"
+          :key="header.key"
         >
-          {{ header }}
+          {{ header.name }}
+          <button
+            v-if="header.key !== 'more'"
+            :class="isSortClicked('asc', header.key) ? style.sortClicked : null"
+            @click="onSortClick('asc', header.key)"
+          >
+            ASC
+          </button>
+          <button
+            v-if="header.key !== 'more'"
+            :class="isSortClicked('dsc', header.key) ? style.sortClicked : null"
+            @click="onSortClick('dsc', header.key)"
+          >
+            DSC
+          </button>
         </td>
       </tr>
     </thead>
@@ -27,8 +41,15 @@
 </template>
 
 <script lang="ts">
-import { Vue, prop } from 'vue-class-component';
-import { BeerSimplified } from '@/types/typings';
+import { Vue, prop, Options } from 'vue-class-component';
+import {
+  BeerSimplified,
+  SortDirection,
+  SortEventData,
+  SortBy,
+} from '@/types/typings';
+
+type TableHeader = Array<{ key: string; name: string }>;
 
 class Props {
   beerData: BeerSimplified[] = prop({
@@ -36,18 +57,66 @@ class Props {
   });
 }
 
+@Options({
+  emits: ['sort'],
+})
 export default class BeerTable extends Vue.with(Props) {
-  get tableHeaders(): string[] {
+  sortDirection: SortDirection = 'none';
+  sortBy: SortBy | null = null;
+
+  get tableHeaders(): TableHeader {
     return [
-      'ID',
-      'NAME',
-      'FIRST BREWED',
-      'ALCOHOL BY VOLUME (ABV)',
-      'INTERNATIONAL BITTERING UNIT (IBU)',
-      'COLOR UNITS (EBC)',
-      'PH',
-      'MORE',
+      {
+        key: 'id',
+        name: 'ID',
+      },
+      {
+        key: 'name',
+        name: 'NAME',
+      },
+      {
+        key: 'first_brewed',
+        name: 'FIRST BREWED',
+      },
+      {
+        key: 'abv',
+        name: 'ALCOHOL BY VOLUME (ABV)',
+      },
+      {
+        key: 'ibu',
+        name: 'INTERNATIONAL BITTERING UNIT (IBU)',
+      },
+      {
+        key: 'ebc',
+        name: 'COLOR UNITS (EBC)',
+      },
+      {
+        key: 'ph',
+        name: 'PH',
+      },
+      {
+        key: 'more',
+        name: 'MORE',
+      },
     ];
+  }
+
+  isSortClicked(sortDirection: SortDirection, sortBy: SortBy): boolean {
+    return this.sortDirection === sortDirection && this.sortBy === sortBy;
+  }
+
+  onSortClick(sortDirection: SortDirection, sortBy: SortBy): void {
+    const shouldBeApplied: boolean =
+      this.sortBy !== sortBy || this.sortDirection !== sortDirection;
+
+    this.sortBy = shouldBeApplied ? sortBy : null;
+    this.sortDirection = shouldBeApplied ? sortDirection : 'none';
+
+    const eventData: SortEventData = {
+      sortDirection: this.sortDirection,
+      sortBy: this.sortBy,
+    };
+    this.$emit('sort', eventData);
   }
 }
 </script>
@@ -61,5 +130,9 @@ export default class BeerTable extends Vue.with(Props) {
 .tableCell {
   border: 1px solid black;
   padding: 4px;
+}
+
+.sortClicked {
+  background-color: grey;
 }
 </style>

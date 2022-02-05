@@ -1,7 +1,14 @@
 import { createStore } from 'vuex';
-import { Beer, BeerSimplified, State, BeerSimplifiedI } from '@/types/typings';
+import {
+  Beer,
+  BeerSimplified,
+  State,
+  BeerSimplifiedI,
+  SortFunction,
+} from '@/types/typings';
 import { API_ADDRESS, tableHeaders } from './const';
 import axios from 'axios';
+import { compareFunction } from '@/utils';
 
 const state: State = {
   beers: [],
@@ -19,6 +26,12 @@ export default createStore({
         );
         return simplifiedBeer as BeerSimplified;
       });
+    },
+    getSortedBeersData(_state, getters): SortFunction {
+      return (sortDirection, sortBy) =>
+        getters.getSimplifiedBeersData.sort(
+          compareFunction(sortDirection, sortBy)
+        );
     },
   },
   mutations: {
