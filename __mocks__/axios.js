@@ -33,6 +33,39 @@ const beerPayload = [
     target_og: 1044,
     volume: { value: 20, unit: 'litres' },
   },
+  {
+    abv: 6.1,
+    attenuation_level: 70.1,
+    boil_volume: { value: 25, unit: 'litres' },
+    brewers_tips:
+      'Mash in at a higher temperature to leave more unfermentable sugars in the wort. This gives the beer a sweeter porter profile.',
+    contributed_by: 'Sam Mason <samjbmason>',
+    description:
+      'An avalanche of cross-continental hop varieties give this porter a complex spicy, resinous and citrusy aroma, with a huge malt bill providing a complex roasty counterpoint. Digging deeper into the flavour draws out cinder toffee, bitter chocolate and hints of woodsmoke.',
+    ebc: 219,
+    first_brewed: '01/2012',
+    food_pairing: [
+      'Blue cheese beef burger',
+      'Glazed short ribs',
+      'Chocolate cake',
+    ],
+    ibu: 45,
+    id: 16,
+    image_url: 'https://images.punkapi.com/v2/16.png',
+    ingredients: { hops: [], malt: [], yeast: 'yeast' },
+    method: {
+      fermentation: { temp: { value: 18, unit: 'celsius' } },
+      twist: null,
+      mash_temp: [{ temp: { value: 68, unit: 'celsius' }, duration: 35 }],
+    },
+    name: 'Libertine Porter',
+    ph: 4.4,
+    srm: 109.5,
+    tagline: 'Dry-Hopped Aggressive Porter.',
+    target_fg: 1020,
+    target_og: 1067,
+    volume: { value: 20, unit: 'litres' },
+  },
 ];
 
 const axios = {

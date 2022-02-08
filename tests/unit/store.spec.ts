@@ -23,6 +23,12 @@ describe('store', () => {
     const beersTable = store.state.beers;
     const beersTableLength = beersTable.length;
     expect(beersTable).toEqual(beerPayload);
-    expect(beersTableLength).toBe(1);
+    expect(beersTableLength).toBe(2);
+  });
+  it('sort data correctly', async () => {
+    await store.dispatch('fetchBeers');
+    const sortedBeersData = store.getters.getSortedBeersData('asc', 'ibu');
+    const sortedBeerId = sortedBeersData[0].id;
+    expect(sortedBeerId).toBe(16);
   });
 });

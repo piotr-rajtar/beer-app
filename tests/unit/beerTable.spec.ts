@@ -1,78 +1,47 @@
 import { shallowMount } from '@vue/test-utils';
-import BeerTableView from '@/views/BeerTableView.vue';
-import { store } from './mockedBeerData';
+import BeerTable from '@/components/beerTable/BeerTable.vue';
+import { beers } from './mockedBeerData';
 
-//Component rendering
-describe('BeerTableView.vue', () => {
-  beforeEach(() => (store.state.beers = []));
-  it('renders header correctly', () => {
-    const wrapper = shallowMount(BeerTableView, {
-      global: {
-        plugins: [store],
+describe('BeerTableNavigation.vue', () => {
+  it('emits sort on event correctly', () => {
+    const wrapper = shallowMount(BeerTable, {
+      props: {
+        beerData: beers,
       },
     });
-    const header = wrapper.find('[data-test="header"]');
-    expect(header.exists()).toBe(true);
+    wrapper.vm.onSortClick('asc', 'id');
+    const emittedEvent = wrapper.emitted().sort[0];
+    expect(emittedEvent).toEqual([{ sortDirection: 'asc', sortBy: 'id' }]);
   });
-  it('renders fetch button correctly', () => {
-    const wrapper = shallowMount(BeerTableView, {
-      global: {
-        plugins: [store],
+  it('emits sort off event correctly', () => {
+    const wrapper = shallowMount(BeerTable, {
+      props: {
+        beerData: beers,
       },
     });
-    const button = wrapper.find('[data-test="fetch-button"]');
-    expect(button.exists()).toBe(true);
+    wrapper.vm.onSortClick('asc', 'id');
+    wrapper.vm.onSortClick('asc', 'id');
+    const emittedEvent = wrapper.emitted().sort[1];
+    expect(emittedEvent).toEqual([{ sortDirection: 'none', sortBy: null }]);
   });
-  it('renders beer table navigation correctly', async () => {
-    const wrapper = shallowMount(BeerTableView, {
-      global: {
-        plugins: [store],
+  it('returns correct value when sort is on', () => {
+    const wrapper = shallowMount(BeerTable, {
+      props: {
+        beerData: beers,
       },
     });
-    await wrapper.vm.downloadBeers();
-    const tableNavigation = wrapper.find('[data-test="beer-table-nav"]');
-    expect(tableNavigation.exists()).toBe(true);
+    wrapper.vm.onSortClick('asc', 'id');
+    const isSortClicked = wrapper.vm.isSortClicked('asc', 'id');
+    expect(isSortClicked).toBe(true);
   });
-  it('renders beer table correctly', async () => {
-    const wrapper = shallowMount(BeerTableView, {
-      global: {
-        plugins: [store],
+  it('returns correct value when sort is off', () => {
+    const wrapper = shallowMount(BeerTable, {
+      props: {
+        beerData: beers,
       },
     });
-    await wrapper.vm.downloadBeers();
-    const table = wrapper.find('[data-test="beer-table"]');
-    expect(table.exists()).toBe(true);
-  });
-  it('renders no data component correctly', async () => {
-    const wrapper = shallowMount(BeerTableView, {
-      global: {
-        plugins: [store],
-      },
-    });
-    await wrapper.vm.downloadBeers();
-    await store.commit('addBeers', []);
-    const noData = wrapper.find('[data-test="no-data"]');
-    expect(noData.exists()).toBe(true);
-  });
-  it('renders LoadMore component correctly', async () => {
-    const wrapper = shallowMount(BeerTableView, {
-      global: {
-        plugins: [store],
-      },
-    });
-    await wrapper.vm.downloadBeers();
-    const loadMore = wrapper.find('[data-test="LoadMore"]');
-    expect(loadMore.exists()).toBe(true);
-  });
-  it('renders pagination correctly', async () => {
-    const wrapper = shallowMount(BeerTableView, {
-      global: {
-        plugins: [store],
-      },
-    });
-    await wrapper.vm.downloadBeers();
-    await wrapper.vm.onNavChange('Pagination');
-    const pagination = wrapper.find('[data-test="Pagination"]');
-    expect(pagination.exists()).toBe(true);
+    wrapper.vm.onSortClick('asc', 'id');
+    const isSortClicked = wrapper.vm.isSortClicked('dsc', 'id');
+    expect(isSortClicked).toBe(false);
   });
 });
