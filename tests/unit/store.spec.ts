@@ -1,33 +1,27 @@
-import store from '@/store/index';
-import { beers, beerPayload } from './mockedBeerData';
+import storeCreator from '@/store/index';
+import { Store } from 'vuex';
+import { State } from '@/types/typings';
+import { simplifiedBeers } from './mockedBeerData';
 
 describe('store', () => {
+  let testStore: Store<State>;
+
   beforeEach(() => {
-    store.commit('addBeers', []);
-    if (store.state.loadingStatus) {
-      store.commit('changeLoadingStatus');
-    }
+    testStore = storeCreator();
   });
-  it('add and return beers correctly', () => {
-    store.commit('addBeers', beerPayload);
-    const beerData = store.getters.getSimplifiedBeersData;
-    expect(beerData).toEqual(beers);
+  it('fetch data correctly', async () => {
+    await testStore.dispatch('fetchBeers');
+    const beersTableLength = testStore.state.beers.length;
+    expect(beersTableLength).toEqual(2);
   });
-  it('changes loading state correctly', () => {
-    store.commit('changeLoadingStatus');
-    const loadingStatus = store.state.loadingStatus;
-    expect(loadingStatus).toBe(true);
-  });
-  it('changes loading state correctly', async () => {
-    await store.dispatch('fetchBeers');
-    const beersTable = store.state.beers;
-    const beersTableLength = beersTable.length;
-    expect(beersTable).toEqual(beerPayload);
-    expect(beersTableLength).toBe(2);
+  it('return simplified beers correctly', async () => {
+    await testStore.dispatch('fetchBeers');
+    const simplifiedBeersData = testStore.getters.getSimplifiedBeersData;
+    expect(simplifiedBeersData).toEqual(simplifiedBeers);
   });
   it('sort data correctly', async () => {
-    await store.dispatch('fetchBeers');
-    const sortedBeersData = store.getters.getSortedBeersData('asc', 'ibu');
+    await testStore.dispatch('fetchBeers');
+    const sortedBeersData = testStore.getters.getSortedBeersData('asc', 'ibu');
     const sortedBeerId = sortedBeersData[0].id;
     expect(sortedBeerId).toBe(16);
   });

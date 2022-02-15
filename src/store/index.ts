@@ -1,4 +1,4 @@
-import { createStore } from 'vuex';
+import { createStore, Store } from 'vuex';
 import {
   Beer,
   BeerSimplified,
@@ -15,45 +15,47 @@ const state: State = {
   loadingStatus: false,
 };
 
-export default createStore({
-  state,
-  getters: {
-    getSimplifiedBeersData(state): BeerSimplified[] {
-      return state.beers.map((beer) => {
-        const simplifiedBeer: BeerSimplifiedI = {} as BeerSimplifiedI;
-        tableHeaders.forEach(
-          (item) => (simplifiedBeer[item] = beer[item] || '-')
-        );
-        return simplifiedBeer as BeerSimplified;
-      });
-    },
-    getSortedBeersData(_state, getters): SortFunction {
-      return (sortDirection, sortBy) =>
-        getters.getSimplifiedBeersData.sort(
-          compareFunction(sortDirection, sortBy)
-        );
-    },
-  },
-  mutations: {
-    addBeers(state, payload: Beer[]): void {
-      state.beers = [...payload];
-    },
-    changeLoadingStatus(state): void {
-      state.loadingStatus = !state.loadingStatus;
-    },
-  },
-  actions: {
-    fetchBeers(context): void {
-      context.commit('changeLoadingStatus');
-      axios
-        .get(API_ADDRESS)
-        .then((res) => {
-          context.commit('addBeers', res.data);
-          context.commit('changeLoadingStatus');
-        })
-        .catch((e) => {
-          throw new Error(e);
+export default function storeCreator(): Store<State> {
+  return createStore({
+    state,
+    getters: {
+      getSimplifiedBeersData(state): BeerSimplified[] {
+        return state.beers.map((beer) => {
+          const simplifiedBeer: BeerSimplifiedI = {} as BeerSimplifiedI;
+          tableHeaders.forEach(
+            (item) => (simplifiedBeer[item] = beer[item] || '-')
+          );
+          return simplifiedBeer as BeerSimplified;
         });
+      },
+      getSortedBeersData(_state, getters): SortFunction {
+        return (sortDirection, sortBy) =>
+          getters.getSimplifiedBeersData.sort(
+            compareFunction(sortDirection, sortBy)
+          );
+      },
     },
-  },
-});
+    mutations: {
+      addBeers(state, payload: Beer[]): void {
+        state.beers = [...payload];
+      },
+      changeLoadingStatus(state): void {
+        state.loadingStatus = !state.loadingStatus;
+      },
+    },
+    actions: {
+      fetchBeers(context): void {
+        context.commit('changeLoadingStatus');
+        axios
+          .get(API_ADDRESS)
+          .then((res) => {
+            context.commit('addBeers', res.data);
+            context.commit('changeLoadingStatus');
+          })
+          .catch((e) => {
+            throw new Error(e);
+          });
+      },
+    },
+  });
+}

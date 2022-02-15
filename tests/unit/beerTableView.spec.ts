@@ -1,72 +1,48 @@
 import { shallowMount } from '@vue/test-utils';
 import BeerTableView from '@/views/BeerTableView.vue';
-import { store, beers } from './mockedBeerData';
+import { Store } from 'vuex';
+import { State } from '@/types/typings';
+import storeCreator from '@/store/index';
 
 describe('BeerTableView.vue', () => {
-  beforeEach(() => (store.state.beers = []));
-  it('renders header correctly', () => {
+  let mockedStore: Store<State>;
+
+  beforeEach(() => (mockedStore = storeCreator()));
+  it('return correct shouldTableBeVisibile getter value when beer data fetched', async () => {
     const wrapper = shallowMount(BeerTableView, {
       global: {
-        plugins: [store],
-      },
-    });
-    const header = wrapper.find('[data-test="header"]');
-    expect(header.exists()).toBe(true);
-  });
-  it('renders fetch button correctly', () => {
-    const wrapper = shallowMount(BeerTableView, {
-      global: {
-        plugins: [store],
-      },
-    });
-    const button = wrapper.find('[data-test="fetch-button"]');
-    expect(button.exists()).toBe(true);
-  });
-  it('renders beer table navigation correctly', async () => {
-    const wrapper = shallowMount(BeerTableView, {
-      global: {
-        plugins: [store],
+        plugins: [mockedStore],
       },
     });
     await wrapper.vm.downloadBeers();
-    const tableNavigation = wrapper.find('[data-test="beer-table-nav"]');
-    expect(tableNavigation.exists()).toBe(true);
+    const shouldTableBeVisibile = wrapper.vm.shouldTableBeVisibile;
+    expect(shouldTableBeVisibile).toBe(true);
   });
-  it('renders beer table correctly', async () => {
+  it('renders no data component when no data fetched', async () => {
     const wrapper = shallowMount(BeerTableView, {
       global: {
-        plugins: [store],
+        plugins: [mockedStore],
       },
     });
     await wrapper.vm.downloadBeers();
-    const table = wrapper.find('[data-test="beer-table"]');
-    expect(table.exists()).toBe(true);
-  });
-  it('renders no data component correctly', async () => {
-    const wrapper = shallowMount(BeerTableView, {
-      global: {
-        plugins: [store],
-      },
-    });
-    await wrapper.vm.downloadBeers();
-    await store.commit('addBeers', []);
+    await mockedStore.commit('addBeers', []);
     const noData = wrapper.find('[data-test="no-data"]');
     expect(noData.exists()).toBe(true);
   });
-  it('renders LoadMore component correctly', async () => {
+  it('renders LoadMore component if selected', async () => {
     const wrapper = shallowMount(BeerTableView, {
       global: {
-        plugins: [store],
+        plugins: [mockedStore],
       },
     });
     await wrapper.vm.downloadBeers();
     const loadMore = wrapper.find('[data-test="LoadMore"]');
     expect(loadMore.exists()).toBe(true);
   });
-  it('renders pagination correctly', async () => {
+  it('renders Pagination component if selected', async () => {
     const wrapper = shallowMount(BeerTableView, {
       global: {
-        plugins: [store],
+        plugins: [mockedStore],
       },
     });
     await wrapper.vm.downloadBeers();
@@ -74,23 +50,16 @@ describe('BeerTableView.vue', () => {
     const pagination = wrapper.find('[data-test="Pagination"]');
     expect(pagination.exists()).toBe(true);
   });
-  it('handle sort event correctly', async () => {
+  it('sort beer data correctly', async () => {
     const wrapper = shallowMount(BeerTableView, {
       global: {
-        plugins: [store],
+        plugins: [mockedStore],
       },
     });
 
-    await store.commit('addBeers', beers);
-    const initialFirstBeerId = wrapper.vm.beersData[0].id;
+    await wrapper.vm.downloadBeers();
     wrapper.vm.onSortClick({ sortDirection: 'dsc', sortBy: 'id' });
-    const sortedFirstBeersId = wrapper.vm.beersData[0].id;
-    wrapper.vm.onSortClick({ sortDirection: 'none', sortBy: null });
-    const sortDirectionDataProp = wrapper.vm.sortDirection;
-    const sortByDataProp = wrapper.vm.sortBy;
-    expect(initialFirstBeerId).toBe(1);
-    expect(sortedFirstBeersId).toBe(16);
-    expect(sortDirectionDataProp).toBe('none');
-    expect(sortByDataProp).toBe(null);
+    const firstBeerId = wrapper.vm.beersData[0].id;
+    expect(firstBeerId).toBe(16);
   });
 });
