@@ -1,18 +1,18 @@
 <template>
   <h1>Click to fetch data</h1>
   <beer-button @click="debouncedFetchClick()"> Let's brew! </beer-button>
-  <loader v-if="$store.state.loadingStatus" />
   <beer-table-navigation v-if="shouldTableBeVisibile" @change="onNavChange" />
   <beer-table
     v-if="shouldTableBeVisibile"
     :beer-data="beersData"
     @sort="onSortClick"
   />
+  <loader v-if="$store.state.loadingStatus" />
   <no-data data-test="no-data" v-if="shouldNoDataBeVisibile">
     No beers found
   </no-data>
   <component
-    v-if="shouldTableBeVisibile"
+    v-if="shouldLoadMoreComponentBeVisible"
     :is="loadingType"
     :data-test="loadingType"
   />
@@ -76,9 +76,7 @@ export default class BeerTableView extends Vue {
   }
 
   get shouldTableBeVisibile(): boolean {
-    return (
-      !!this.getSimplifiedBeersData.length && !this.$store.state.loadingStatus
-    );
+    return !!this.getSimplifiedBeersData.length;
   }
 
   get shouldNoDataBeVisibile(): boolean {
@@ -87,6 +85,10 @@ export default class BeerTableView extends Vue {
       !this.$store.state.loadingStatus &&
       this.wasFetchButtonEverClicked
     );
+  }
+
+  get shouldLoadMoreComponentBeVisible(): boolean {
+    return this.shouldTableBeVisibile && !this.$store.state.loadingStatus;
   }
 
   onNavChange(navType: LoadingType): void {
