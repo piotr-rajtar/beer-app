@@ -32,7 +32,7 @@
           :class="style.tableCell"
           :key="key + beer.id"
         >
-          {{ beer[key] }}
+          {{ beer[key] || '-' }}
         </td>
         <td :class="style.tableCell">More</td>
       </tr>

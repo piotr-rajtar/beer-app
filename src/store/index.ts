@@ -22,9 +22,7 @@ export default function storeCreator(): Store<State> {
       getSimplifiedBeersData(state): BeerSimplified[] {
         return state.beers.map((beer) => {
           const simplifiedBeer: BeerSimplifiedI = {} as BeerSimplifiedI;
-          tableHeaders.forEach(
-            (item) => (simplifiedBeer[item] = beer[item] || '-')
-          );
+          tableHeaders.forEach((item) => (simplifiedBeer[item] = beer[item]));
           return simplifiedBeer as BeerSimplified;
         });
       },

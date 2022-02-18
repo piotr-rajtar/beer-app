@@ -37,22 +37,22 @@ interface Method {
 }
 
 export interface Beer {
-  abv: number | string;
+  abv: number | null;
   attenuation_level: number;
   boil_volume: Volume;
   brewers_tips: string;
   contributed_by: string;
   description: string;
-  ebc: number | string;
+  ebc: number | null;
   first_brewed: string;
   food_pairing: string[];
-  ibu: number | string;
+  ibu: number | null;
   id: number;
   image_url: string;
   ingredients: Ingredients;
   method: Method;
   name: string;
-  ph: number | string;
+  ph: number | null;
   srm: number;
   tagline: string;
   target_fg: number;
@@ -73,7 +73,7 @@ export interface BeerSimplified {
 type TableKeys = 'id' | 'name' | 'first_brewed' | 'abv' | 'ibu' | 'ebc' | 'ph';
 
 export type BeerSimplifiedI = {
-  [key in TableKeys]: number | string;
+  [key in TableKeys]: number | string | null;
 };
 
 export interface State {
