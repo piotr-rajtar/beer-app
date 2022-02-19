@@ -25,4 +25,10 @@ describe('store', () => {
     const sortedBeerId = sortedBeersData[0].id;
     expect(sortedBeerId).toBe(16);
   });
+  it('fetch more data correctly', async () => {
+    await testStore.dispatch('fetchBeersInitially');
+    await testStore.dispatch('loadMoreBeers', { page: 2 });
+    const beersTableLength = testStore.state.beers.length;
+    expect(beersTableLength).toEqual(3);
+  });
 });

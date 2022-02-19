@@ -14,7 +14,7 @@ describe('BeerTableView.vue', () => {
         plugins: [mockedStore],
       },
     });
-    await wrapper.vm.downloadBeers();
+    await wrapper.vm.downloadBeersInitially();
     const shouldTableBeVisibile = wrapper.vm.shouldTableBeVisibile;
     expect(shouldTableBeVisibile).toBe(true);
   });
@@ -24,7 +24,7 @@ describe('BeerTableView.vue', () => {
         plugins: [mockedStore],
       },
     });
-    await wrapper.vm.downloadBeers();
+    await wrapper.vm.downloadBeersInitially();
     await mockedStore.commit('addBeersInitially', []);
     const noData = wrapper.find('[data-test="no-data"]');
     expect(noData.exists()).toBe(true);
@@ -35,7 +35,7 @@ describe('BeerTableView.vue', () => {
         plugins: [mockedStore],
       },
     });
-    await wrapper.vm.downloadBeers();
+    await wrapper.vm.downloadBeersInitially();
     const loadMore = wrapper.find('[data-test="LoadMore"]');
     expect(loadMore.exists()).toBe(true);
   });
@@ -45,7 +45,7 @@ describe('BeerTableView.vue', () => {
         plugins: [mockedStore],
       },
     });
-    await wrapper.vm.downloadBeers();
+    await wrapper.vm.downloadBeersInitially();
     await wrapper.vm.onNavChange('Pagination');
     const pagination = wrapper.find('[data-test="Pagination"]');
     expect(pagination.exists()).toBe(true);
@@ -57,9 +57,21 @@ describe('BeerTableView.vue', () => {
       },
     });
 
-    await wrapper.vm.downloadBeers();
+    await wrapper.vm.downloadBeersInitially();
     wrapper.vm.onSortClick({ sortDirection: 'dsc', sortBy: 'id' });
     const firstBeerId = wrapper.vm.beersData[0].id;
     expect(firstBeerId).toBe(16);
+  });
+  it('load more beer data correctly', async () => {
+    const wrapper = shallowMount(BeerTableView, {
+      global: {
+        plugins: [mockedStore],
+      },
+    });
+
+    await wrapper.vm.downloadBeersInitially();
+    await wrapper.vm.onLoadMoreBeers();
+    const [lastBeer] = wrapper.vm.beersData.slice(-1);
+    expect(lastBeer.id).toBe(23);
   });
 });

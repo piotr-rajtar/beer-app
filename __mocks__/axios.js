@@ -68,7 +68,46 @@ const beerPayload = [
   },
 ];
 
+const beerPayload2 = [
+  {
+    abv: 8,
+    attenuation_level: 86,
+    boil_volume: { value: 25, unit: 'litres' },
+    brewers_tips: 'Some brewers tip',
+    contributed_by: 'Sam Mason <samjbmason>',
+    description: 'Some description',
+    ebc: 12,
+    first_brewed: '12/2007',
+    food_pairing: ['Oysters', 'Hickory smoked ham', 'Rocky Road'],
+    ibu: 60,
+    id: 23,
+    image_url: 'https://images.punkapi.com/v2/23.png',
+    ingredients: { hops: [], malt: [], yeast: 'yeast' },
+    method: {
+      fermentation: { temp: { value: 19, unit: 'celsius' } },
+      twist: null,
+      mash_temp: [{ temp: { value: 65, unit: 'celsius' }, duration: 75 }],
+    },
+    name: 'Storm',
+    ph: 4.4,
+    srm: 6,
+    tagline: 'Islay Whisky Aged IPA.',
+    target_fg: 1010,
+    target_og: 1082,
+    volume: { value: 20, unit: 'litres' },
+  },
+];
+
 const axios = {
-  get: () => new Promise((res) => res({ data: beerPayload })),
+  get: (url) =>
+    new Promise((res) => {
+      const urlParams = url.split('?')[1];
+      const searchParams = new URLSearchParams(urlParams);
+      if (searchParams.has('page')) {
+        res({ data: beerPayload2 });
+      } else {
+        res({ data: beerPayload });
+      }
+    }),
 };
 export default axios;
