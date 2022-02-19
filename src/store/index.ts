@@ -5,10 +5,11 @@ import {
   State,
   BeerSimplifiedI,
   SortFunction,
+  QueryParams,
 } from '@/types/typings';
 import { API_ADDRESS, tableHeaders } from './const';
 import axios from 'axios';
-import { compareFunction } from '@/utils';
+import { compareFunction, getQueryString } from '@/utils';
 
 const state: State = {
   beers: [],
@@ -37,6 +38,9 @@ export default function storeCreator(): Store<State> {
       addBeersInitially(state, payload: Beer[]): void {
         state.beers = [...payload];
       },
+      addMoreBeers(state, payload: Beer[]): void {
+        state.beers = [...state.beers, ...payload];
+      },
       changeLoadingStatus(state): void {
         state.loadingStatus = !state.loadingStatus;
       },
@@ -48,6 +52,20 @@ export default function storeCreator(): Store<State> {
           .get(API_ADDRESS)
           .then((res) => {
             context.commit('addBeersInitially', res.data);
+            context.commit('changeLoadingStatus');
+          })
+          .catch((e) => {
+            throw new Error(e);
+          });
+      },
+      loadMoreBeers(context, queryParams: QueryParams): void {
+        const queryString: string = getQueryString(queryParams);
+        const url: string = API_ADDRESS + queryString;
+        context.commit('changeLoadingStatus');
+        axios
+          .get(url)
+          .then((res) => {
+            context.commit('addMoreBeers', res.data);
             context.commit('changeLoadingStatus');
           })
           .catch((e) => {

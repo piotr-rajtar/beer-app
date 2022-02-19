@@ -96,3 +96,7 @@ export type SortFunction = (
   sortDirection: SortDirection,
   sortBy: SortBy
 ) => BeerSimplified[];
+
+export interface QueryParams {
+  page: number;
+}

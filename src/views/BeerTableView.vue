@@ -1,6 +1,6 @@
 <template>
   <h1>Click to fetch data</h1>
-  <beer-button @click="debouncedFetchClick()"> Let's brew! </beer-button>
+  <beer-button @click="debouncedInitialFetchClick()"> Let's brew! </beer-button>
   <beer-table-navigation v-if="shouldTableBeVisibile" @change="onNavChange" />
   <beer-table
     v-if="shouldTableBeVisibile"
@@ -15,6 +15,7 @@
     v-if="shouldLoadMoreComponentBeVisible"
     :is="loadingType"
     :data-test="loadingType"
+    @load-more="debouncedLoadMoreClick()"
   />
 </template>
 
@@ -28,6 +29,7 @@ import {
   SortEventData,
   SortFunction,
   SortBy,
+  QueryParams,
 } from '@/types/typings';
 import BeerTableNavigation from '@/components/beerTable/BeerTableNavigation.vue';
 import BeerTable from '@/components/beerTable/BeerTable.vue';
@@ -41,7 +43,7 @@ import { DebouncedFunc } from 'lodash';
 
 @Options({
   methods: {
-    ...mapActions(['fetchBeersInitially']),
+    ...mapActions(['fetchBeersInitially', 'loadMoreBeers']),
   },
   computed: {
     ...mapGetters(['getSimplifiedBeersData', 'getSortedBeersData']),
@@ -58,16 +60,22 @@ import { DebouncedFunc } from 'lodash';
 })
 export default class BeerTableView extends Vue {
   fetchBeersInitially!: () => void;
-  getSimplifiedBeersData!: BeerSimplified[];
+  loadMoreBeers!: (query: QueryParams) => void;
   getSortedBeersData!: SortFunction;
+  getSimplifiedBeersData!: BeerSimplified[];
   wasFetchButtonEverClicked: boolean = false;
-  debouncedFetchClick: DebouncedFunc<() => void> = debounce(
-    this.downloadBeers,
-    300
-  );
   loadingType: LoadingType = 'LoadMore';
   sortDirection: SortDirection = 'none';
   sortBy: SortBy | null = null;
+  page: number = 1;
+  debouncedInitialFetchClick: DebouncedFunc<() => void> = debounce(
+    this.downloadBeersInitially,
+    300
+  );
+  debouncedLoadMoreClick: DebouncedFunc<() => void> = debounce(
+    this.onLoadMoreBeers,
+    300
+  );
 
   get beersData(): BeerSimplified[] {
     return this.sortDirection === 'none'
@@ -91,21 +99,34 @@ export default class BeerTableView extends Vue {
     return this.shouldTableBeVisibile && !this.$store.state.loadingStatus;
   }
 
-  async onNavChange(navType: LoadingType): Promise<void> {
-    this.loadingType = navType;
-    this.debouncedFetchClick();
-  }
-
   onSortClick(event: SortEventData): void {
     this.sortDirection = event.sortDirection;
     this.sortBy = event.sortBy;
   }
 
-  async downloadBeers(): Promise<void> {
+  setInitialPageValue(): void {
+    this.page = 1;
+  }
+
+  async onNavChange(navType: LoadingType): Promise<void> {
+    this.loadingType = navType;
+    this.debouncedInitialFetchClick();
+  }
+
+  async downloadBeersInitially(): Promise<void> {
     await this.fetchBeersInitially();
     if (!this.wasFetchButtonEverClicked) {
       this.wasFetchButtonEverClicked = true;
     }
+    this.setInitialPageValue();
+  }
+
+  async onLoadMoreBeers(): Promise<void> {
+    this.page++;
+    const queryObject: QueryParams = {
+      page: this.page,
+    };
+    await this.loadMoreBeers(queryObject);
   }
 }
 </script>

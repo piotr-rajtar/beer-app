@@ -1,4 +1,9 @@
-import { BeerSimplified, SortBy, SortDirection } from '@/types/typings';
+import {
+  BeerSimplified,
+  QueryParams,
+  SortBy,
+  SortDirection,
+} from '@/types/typings';
 
 const getDateTime = (dateString: string) => {
   const [month, year]: number[] = dateString.split('/').map((item) => +item);
@@ -21,4 +26,13 @@ export const compareFunction = (
         return (arg1[sortBy] as number) - (arg2[sortBy] as number);
     }
   };
+};
+
+export const getQueryString = (queryParams: QueryParams): string => {
+  const queryString: string = (
+    Object.keys(queryParams) as Array<keyof QueryParams>
+  )
+    .map((queryParamKey) => `${queryParamKey}=${queryParams[queryParamKey]}`)
+    .join();
+  return `?${queryString}`;
 };

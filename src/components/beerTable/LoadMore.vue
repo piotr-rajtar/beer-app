@@ -1,11 +1,17 @@
 <template>
-  <span>Load More</span>
+  <beer-button @click="onLoadMore()"> Load more </beer-button>
 </template>
 
 <script lang="ts">
-import { Vue } from 'vue-class-component';
+import { Options, Vue } from 'vue-class-component';
+import BeerButton from '@/components/shared/BeerButton.vue';
 
-export default class LoadMore extends Vue {}
+@Options({ components: { BeerButton }, emits: ['loadMore'] })
+export default class LoadMore extends Vue {
+  onLoadMore(): void {
+    this.$emit('loadMore');
+  }
+}
 </script>
 
 <style scoped lang="scss" module="style"></style>
