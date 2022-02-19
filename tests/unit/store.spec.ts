@@ -10,17 +10,17 @@ describe('store', () => {
     testStore = storeCreator();
   });
   it('fetch data correctly', async () => {
-    await testStore.dispatch('fetchBeers');
+    await testStore.dispatch('fetchBeersInitially');
     const beersTableLength = testStore.state.beers.length;
     expect(beersTableLength).toEqual(2);
   });
   it('return simplified beers correctly', async () => {
-    await testStore.dispatch('fetchBeers');
+    await testStore.dispatch('fetchBeersInitially');
     const simplifiedBeersData = testStore.getters.getSimplifiedBeersData;
     expect(simplifiedBeersData).toEqual(simplifiedBeers);
   });
   it('sort data correctly', async () => {
-    await testStore.dispatch('fetchBeers');
+    await testStore.dispatch('fetchBeersInitially');
     const sortedBeersData = testStore.getters.getSortedBeersData('asc', 'ibu');
     const sortedBeerId = sortedBeersData[0].id;
     expect(sortedBeerId).toBe(16);

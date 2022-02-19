@@ -41,7 +41,7 @@ import { DebouncedFunc } from 'lodash';
 
 @Options({
   methods: {
-    ...mapActions(['fetchBeers']),
+    ...mapActions(['fetchBeersInitially']),
   },
   computed: {
     ...mapGetters(['getSimplifiedBeersData', 'getSortedBeersData']),
@@ -57,7 +57,7 @@ import { DebouncedFunc } from 'lodash';
   },
 })
 export default class BeerTableView extends Vue {
-  fetchBeers!: () => void;
+  fetchBeersInitially!: () => void;
   getSimplifiedBeersData!: BeerSimplified[];
   getSortedBeersData!: SortFunction;
   wasFetchButtonEverClicked: boolean = false;
@@ -91,8 +91,9 @@ export default class BeerTableView extends Vue {
     return this.shouldTableBeVisibile && !this.$store.state.loadingStatus;
   }
 
-  onNavChange(navType: LoadingType): void {
+  async onNavChange(navType: LoadingType): Promise<void> {
     this.loadingType = navType;
+    this.debouncedFetchClick();
   }
 
   onSortClick(event: SortEventData): void {
@@ -101,7 +102,7 @@ export default class BeerTableView extends Vue {
   }
 
   async downloadBeers(): Promise<void> {
-    await this.fetchBeers();
+    await this.fetchBeersInitially();
     if (!this.wasFetchButtonEverClicked) {
       this.wasFetchButtonEverClicked = true;
     }

@@ -25,7 +25,7 @@ describe('BeerTableView.vue', () => {
       },
     });
     await wrapper.vm.downloadBeers();
-    await mockedStore.commit('addBeers', []);
+    await mockedStore.commit('addBeersInitially', []);
     const noData = wrapper.find('[data-test="no-data"]');
     expect(noData.exists()).toBe(true);
   });

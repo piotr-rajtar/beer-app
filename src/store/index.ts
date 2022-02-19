@@ -34,7 +34,7 @@ export default function storeCreator(): Store<State> {
       },
     },
     mutations: {
-      addBeers(state, payload: Beer[]): void {
+      addBeersInitially(state, payload: Beer[]): void {
         state.beers = [...payload];
       },
       changeLoadingStatus(state): void {
@@ -42,12 +42,12 @@ export default function storeCreator(): Store<State> {
       },
     },
     actions: {
-      fetchBeers(context): void {
+      fetchBeersInitially(context): void {
         context.commit('changeLoadingStatus');
         axios
           .get(API_ADDRESS)
           .then((res) => {
-            context.commit('addBeers', res.data);
+            context.commit('addBeersInitially', res.data);
             context.commit('changeLoadingStatus');
           })
           .catch((e) => {
