@@ -1,18 +1,16 @@
 <template>
   <h1>Click to fetch data</h1>
   <beer-button @click="debouncedInitialFetchClick()"> Let's brew! </beer-button>
-  <beer-table-navigation v-if="shouldTableBeVisibile" @change="onNavChange" />
+  <beer-table-navigation v-if="isTableVisible" @change="onNavChange" />
   <beer-table
-    v-if="shouldTableBeVisibile"
+    v-if="isTableVisible"
     :beer-data="beersData"
     @sort="onSortClick"
   />
   <loader v-if="$store.state.loadingStatus" />
-  <no-data data-test="no-data" v-if="shouldNoDataBeVisibile">
-    No beers found
-  </no-data>
+  <no-data data-test="no-data" v-if="isNoDataVisible"> No beers found </no-data>
   <component
-    v-if="shouldLoadMoreComponentBeVisible"
+    v-if="isLoadMoreVisible"
     :is="loadingType"
     :data-test="loadingType"
     @load-more="debouncedLoadMoreClick()"
@@ -83,11 +81,11 @@ export default class BeerTableView extends Vue {
       : this.getSortedBeersData(this.sortDirection, this.sortBy as SortBy);
   }
 
-  get shouldTableBeVisibile(): boolean {
+  get isTableVisible(): boolean {
     return !!this.getSimplifiedBeersData.length;
   }
 
-  get shouldNoDataBeVisibile(): boolean {
+  get isNoDataVisible(): boolean {
     return (
       !this.getSimplifiedBeersData.length &&
       !this.$store.state.loadingStatus &&
@@ -95,8 +93,8 @@ export default class BeerTableView extends Vue {
     );
   }
 
-  get shouldLoadMoreComponentBeVisible(): boolean {
-    return this.shouldTableBeVisibile && !this.$store.state.loadingStatus;
+  get isLoadMoreVisible(): boolean {
+    return this.isTableVisible && !this.$store.state.loadingStatus;
   }
 
   onSortClick(event: SortEventData): void {

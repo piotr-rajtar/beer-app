@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-const beerPayload = [
+const beerPayloadFirstPage = [
   {
     abv: 4.5,
     attenuation_level: 75,
@@ -68,7 +68,7 @@ const beerPayload = [
   },
 ];
 
-const beerPayload2 = [
+const beerPayloadSecondPage = [
   {
     abv: 8,
     attenuation_level: 86,
@@ -104,9 +104,9 @@ const axios = {
       const urlParams = url.split('?')[1];
       const searchParams = new URLSearchParams(urlParams);
       if (searchParams.has('page')) {
-        res({ data: beerPayload2 });
+        res({ data: beerPayloadSecondPage });
       } else {
-        res({ data: beerPayload });
+        res({ data: beerPayloadFirstPage });
       }
     }),
 };

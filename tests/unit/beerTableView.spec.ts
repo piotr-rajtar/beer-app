@@ -8,15 +8,15 @@ describe('BeerTableView.vue', () => {
   let mockedStore: Store<State>;
 
   beforeEach(() => (mockedStore = storeCreator()));
-  it('return correct shouldTableBeVisibile getter value when beer data fetched', async () => {
+  it('return correct isTableVisible getter value when beer data fetched', async () => {
     const wrapper = shallowMount(BeerTableView, {
       global: {
         plugins: [mockedStore],
       },
     });
     await wrapper.vm.downloadBeersInitially();
-    const shouldTableBeVisibile = wrapper.vm.shouldTableBeVisibile;
-    expect(shouldTableBeVisibile).toBe(true);
+    const isTableVisible = wrapper.vm.isTableVisible;
+    expect(isTableVisible).toBe(true);
   });
   it('renders no data component when no data fetched', async () => {
     const wrapper = shallowMount(BeerTableView, {
