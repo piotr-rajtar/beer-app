@@ -7,19 +7,21 @@ describe('BeerTableNavigation.vue', () => {
     const wrapper = shallowMount(BeerTable, {
       props: {
         beerData: simplifiedBeers,
+        sortDirection: 'asc',
+        sortBy: 'abv',
       },
     });
-    wrapper.vm.onSortClick('asc', 'id');
-    const isSortClicked = wrapper.vm.isSortClicked('asc', 'id');
+    const isSortClicked = wrapper.vm.isSortClicked('asc', 'abv');
     expect(isSortClicked).toBe(true);
   });
   it('returns correct value when sort is off', () => {
     const wrapper = shallowMount(BeerTable, {
       props: {
         beerData: simplifiedBeers,
+        sortDirection: 'none',
+        sortBy: null,
       },
     });
-    wrapper.vm.onSortClick('asc', 'id');
     const isSortClicked = wrapper.vm.isSortClicked('dsc', 'id');
     expect(isSortClicked).toBe(false);
   });

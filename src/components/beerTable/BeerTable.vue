@@ -55,15 +55,18 @@ class Props {
   beerData: BeerSimplified[] = prop({
     required: true,
   });
+  sortDirection: SortDirection = prop({
+    required: true,
+  });
+  sortBy: SortBy | null = prop({
+    required: true,
+  });
 }
 
 @Options({
   emits: ['sort'],
 })
 export default class BeerTable extends Vue.with(Props) {
-  sortDirection: SortDirection = 'none';
-  sortBy: SortBy | null = null;
-
   get tableHeaders(): TableHeader {
     return [
       {
@@ -106,15 +109,9 @@ export default class BeerTable extends Vue.with(Props) {
   }
 
   onSortClick(sortDirection: SortDirection, sortBy: SortBy): void {
-    const shouldBeApplied: boolean =
-      this.sortBy !== sortBy || this.sortDirection !== sortDirection;
-
-    this.sortBy = shouldBeApplied ? sortBy : null;
-    this.sortDirection = shouldBeApplied ? sortDirection : 'none';
-
     const eventData: SortEventData = {
-      sortDirection: this.sortDirection,
-      sortBy: this.sortBy,
+      sortDirection,
+      sortBy,
     };
     this.$emit('sort', eventData);
   }

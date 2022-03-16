@@ -5,6 +5,8 @@
   <beer-table
     v-if="isTableVisible"
     :beer-data="beersData"
+    :sort-by="sortBy"
+    :sort-direction="sortDirection"
     @sort="onSortClick"
   />
   <loader v-if="$store.state.loadingStatus" />
@@ -98,8 +100,12 @@ export default class BeerTableView extends Vue {
   }
 
   onSortClick(event: SortEventData): void {
-    this.sortDirection = event.sortDirection;
-    this.sortBy = event.sortBy;
+    const shouldBeApplied: boolean =
+      this.sortBy !== event.sortBy ||
+      this.sortDirection !== event.sortDirection;
+
+    this.sortBy = shouldBeApplied ? event.sortBy : null;
+    this.sortDirection = shouldBeApplied ? event.sortDirection : 'none';
   }
 
   setInitialPageValue(): void {
@@ -107,6 +113,8 @@ export default class BeerTableView extends Vue {
   }
 
   async onNavChange(navType: LoadingType): Promise<void> {
+    this.sortBy = null;
+    this.sortDirection = 'none';
     this.loadingType = navType;
     this.debouncedInitialFetchClick();
   }

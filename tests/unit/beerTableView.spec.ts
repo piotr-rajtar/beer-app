@@ -62,6 +62,32 @@ describe('BeerTableView.vue', () => {
     const firstBeerId = wrapper.vm.beersData[0].id;
     expect(firstBeerId).toBe(16);
   });
+  it('sort off beer data correctly when navigation changed', async () => {
+    const wrapper = shallowMount(BeerTableView, {
+      global: {
+        plugins: [mockedStore],
+      },
+    });
+
+    await wrapper.vm.downloadBeersInitially();
+    wrapper.vm.onSortClick({ sortDirection: 'dsc', sortBy: 'id' });
+    wrapper.vm.onNavChange('Pagination');
+    const firstBeerId = wrapper.vm.beersData[0].id;
+    expect(firstBeerId).toBe(1);
+  });
+  it('sort off beer data correctly when double clicked on the same column and sort direction', async () => {
+    const wrapper = shallowMount(BeerTableView, {
+      global: {
+        plugins: [mockedStore],
+      },
+    });
+
+    await wrapper.vm.downloadBeersInitially();
+    wrapper.vm.onSortClick({ sortDirection: 'dsc', sortBy: 'id' });
+    wrapper.vm.onSortClick({ sortDirection: 'dsc', sortBy: 'id' });
+    const firstBeerId = wrapper.vm.beersData[0].id;
+    expect(firstBeerId).toBe(1);
+  });
   it('load more beer data correctly', async () => {
     const wrapper = shallowMount(BeerTableView, {
       global: {
