@@ -1,6 +1,6 @@
 <template>
   <h1>Click to fetch data</h1>
-  <beer-button @click="debouncedInitialFetchClick()"> Let's brew! </beer-button>
+  <beer-button @click="debouncedFetchBeers()"> Let's brew! </beer-button>
   <beer-table-navigation v-if="isTableVisible" @change="onNavChange" />
   <beer-table
     v-if="isTableVisible"
@@ -12,10 +12,15 @@
   <loader v-if="$store.state.loadingStatus" />
   <no-data data-test="no-data" v-if="isNoDataVisible"> No beers found </no-data>
   <component
-    v-if="isLoadMoreVisible"
+    v-if="isTableNavigationButtonsVisible"
     :is="loadingType"
     :data-test="loadingType"
+    :is-prev-button-disabled="isPrevButtonDisabled"
+    :is-next-button-disabled="isNextButtonDisabled"
+    :is-load-more-button-disabled="isLoadMoreButtonDisabled"
     @load-more="debouncedLoadMoreClick()"
+    @prev-page="debouncedPrevPageClick()"
+    @next-page="debouncedNextPageClick()"
   />
 </template>
 
@@ -30,6 +35,7 @@ import {
   SortFunction,
   SortBy,
   QueryParams,
+  PaginationButtonState,
 } from '@/types/typings';
 import BeerTableNavigation from '@/components/beerTable/BeerTableNavigation.vue';
 import BeerTable from '@/components/beerTable/BeerTable.vue';
@@ -43,7 +49,11 @@ import { DebouncedFunc } from 'lodash';
 
 @Options({
   methods: {
-    ...mapActions(['fetchBeersInitially', 'loadMoreBeers']),
+    ...mapActions([
+      'loadSinglePage',
+      'loadMoreBeers',
+      'checkIfNextPageAvailable',
+    ]),
   },
   computed: {
     ...mapGetters(['getSimplifiedBeersData', 'getSortedBeersData']),
@@ -59,8 +69,9 @@ import { DebouncedFunc } from 'lodash';
   },
 })
 export default class BeerTableView extends Vue {
-  fetchBeersInitially!: () => void;
   loadMoreBeers!: (query: QueryParams) => void;
+  loadSinglePage!: (query: QueryParams) => void;
+  checkIfNextPageAvailable!: (query: QueryParams) => Promise<boolean>;
   getSortedBeersData!: SortFunction;
   getSimplifiedBeersData!: BeerSimplified[];
   wasFetchButtonEverClicked: boolean = false;
@@ -68,14 +79,29 @@ export default class BeerTableView extends Vue {
   sortDirection: SortDirection = 'none';
   sortBy: SortBy | null = null;
   page: number = 1;
-  debouncedInitialFetchClick: DebouncedFunc<() => void> = debounce(
-    this.downloadBeersInitially,
+  isPrevButtonDisabled: boolean = true;
+  isNextButtonDisabled: boolean = false;
+  isLoadMoreButtonDisabled: boolean = false;
+  debouncedFetchBeers: DebouncedFunc<() => void> = debounce(
+    this.fetchBeers,
     300
   );
   debouncedLoadMoreClick: DebouncedFunc<() => void> = debounce(
     this.onLoadMoreBeers,
     300
   );
+  debouncedPrevPageClick: DebouncedFunc<() => void> = debounce(
+    this.onPrevPageClick,
+    300
+  );
+  debouncedNextPageClick: DebouncedFunc<() => void> = debounce(
+    this.onNextPageClick,
+    300
+  );
+
+  async mounted(): Promise<void> {
+    await this.setButtonsStatus(PaginationButtonState.INITIAL);
+  }
 
   get beersData(): BeerSimplified[] {
     return this.sortDirection === 'none'
@@ -95,8 +121,14 @@ export default class BeerTableView extends Vue {
     );
   }
 
-  get isLoadMoreVisible(): boolean {
+  get isTableNavigationButtonsVisible(): boolean {
     return this.isTableVisible && !this.$store.state.loadingStatus;
+  }
+
+  get queryObject(): QueryParams {
+    return {
+      page: this.page,
+    };
   }
 
   onSortClick(event: SortEventData): void {
@@ -108,31 +140,65 @@ export default class BeerTableView extends Vue {
     this.sortDirection = shouldBeApplied ? event.sortDirection : 'none';
   }
 
-  setInitialPageValue(): void {
-    this.page = 1;
+  async setButtonsStatus(buttonState: PaginationButtonState): Promise<void> {
+    const isNextPageAvailable: boolean = await this.checkIfNextPageAvailable({
+      page: this.page + 1,
+    });
+    switch (buttonState) {
+      case PaginationButtonState.INITIAL:
+        this.isPrevButtonDisabled = true;
+        this.isNextButtonDisabled = !isNextPageAvailable;
+        this.isLoadMoreButtonDisabled = !isNextPageAvailable;
+        return;
+      case PaginationButtonState.PREV:
+        this.isNextButtonDisabled = false;
+        this.isPrevButtonDisabled = this.page === 1;
+        return;
+      case PaginationButtonState.NEXT:
+        this.isPrevButtonDisabled = false;
+        this.isNextButtonDisabled = !isNextPageAvailable;
+        return;
+      case PaginationButtonState.LOAD_MORE:
+        this.isLoadMoreButtonDisabled = !isNextPageAvailable;
+        return;
+    }
   }
 
   async onNavChange(navType: LoadingType): Promise<void> {
     this.sortBy = null;
     this.sortDirection = 'none';
+    if (this.page !== 1) {
+      this.page = 1;
+      this.debouncedFetchBeers();
+    }
+    await this.setButtonsStatus(PaginationButtonState.INITIAL);
     this.loadingType = navType;
-    this.debouncedInitialFetchClick();
   }
 
-  async downloadBeersInitially(): Promise<void> {
-    await this.fetchBeersInitially();
+  fetchBeers(): void {
+    this.page = 1;
+    this.loadSinglePage(this.queryObject);
     if (!this.wasFetchButtonEverClicked) {
       this.wasFetchButtonEverClicked = true;
     }
-    this.setInitialPageValue();
   }
 
   async onLoadMoreBeers(): Promise<void> {
     this.page++;
-    const queryObject: QueryParams = {
-      page: this.page,
-    };
-    await this.loadMoreBeers(queryObject);
+    this.loadMoreBeers(this.queryObject);
+    await this.setButtonsStatus(PaginationButtonState.LOAD_MORE);
+  }
+
+  async onPrevPageClick(): Promise<void> {
+    this.page--;
+    this.loadSinglePage(this.queryObject);
+    await this.setButtonsStatus(PaginationButtonState.PREV);
+  }
+
+  async onNextPageClick(): Promise<void> {
+    this.page++;
+    this.loadSinglePage(this.queryObject);
+    await this.setButtonsStatus(PaginationButtonState.NEXT);
   }
 }
 </script>

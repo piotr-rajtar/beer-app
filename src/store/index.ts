@@ -35,7 +35,7 @@ export default function storeCreator(): Store<State> {
       },
     },
     mutations: {
-      addBeersInitially(state, payload: Beer[]): void {
+      addSinglePage(state, payload: Beer[]): void {
         state.beers = [...payload];
       },
       addMoreBeers(state, payload: Beer[]): void {
@@ -46,12 +46,14 @@ export default function storeCreator(): Store<State> {
       },
     },
     actions: {
-      fetchBeersInitially(context): void {
+      loadSinglePage(context, queryParams: QueryParams): void {
+        const queryString: string = getQueryString(queryParams);
+        const url: string = API_ADDRESS + queryString;
         context.commit('changeLoadingStatus');
         axios
-          .get(API_ADDRESS)
+          .get(url)
           .then((res) => {
-            context.commit('addBeersInitially', res.data);
+            context.commit('addSinglePage', res.data);
             context.commit('changeLoadingStatus');
           })
           .catch((e) => {
@@ -71,6 +73,19 @@ export default function storeCreator(): Store<State> {
           .catch((e) => {
             throw new Error(e);
           });
+      },
+      async checkIfNextPageAvailable(
+        _context,
+        queryParams: QueryParams
+      ): Promise<boolean> {
+        const queryString: string = getQueryString(queryParams);
+        const url: string = API_ADDRESS + queryString;
+        try {
+          const res = await axios.get(url);
+          return res.data.length > 0;
+        } catch {
+          return false;
+        }
       },
     },
   });

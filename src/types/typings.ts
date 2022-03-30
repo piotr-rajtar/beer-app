@@ -100,3 +100,10 @@ export type SortFunction = (
 export interface QueryParams {
   page: number;
 }
+
+export enum PaginationButtonState {
+  INITIAL,
+  NEXT,
+  PREV,
+  LOAD_MORE,
+}
