@@ -69,8 +69,8 @@ import { DebouncedFunc } from 'lodash';
   },
 })
 export default class BeerTableView extends Vue {
-  loadMoreBeers!: (query: QueryParams) => void;
-  loadSinglePage!: (query: QueryParams) => void;
+  loadMoreBeers!: (query: QueryParams) => Promise<void>;
+  loadSinglePage!: (query: QueryParams) => Promise<void>;
   checkIfNextPageAvailable!: (query: QueryParams) => Promise<boolean>;
   getSortedBeersData!: SortFunction;
   getSimplifiedBeersData!: BeerSimplified[];
@@ -86,15 +86,15 @@ export default class BeerTableView extends Vue {
     this.fetchBeers,
     300
   );
-  debouncedLoadMoreClick: DebouncedFunc<() => void> = debounce(
+  debouncedLoadMoreClick: DebouncedFunc<() => Promise<void>> = debounce(
     this.onLoadMoreBeers,
     300
   );
-  debouncedPrevPageClick: DebouncedFunc<() => void> = debounce(
+  debouncedPrevPageClick: DebouncedFunc<() => Promise<void>> = debounce(
     this.onPrevPageClick,
     300
   );
-  debouncedNextPageClick: DebouncedFunc<() => void> = debounce(
+  debouncedNextPageClick: DebouncedFunc<() => Promise<void>> = debounce(
     this.onNextPageClick,
     300
   );
@@ -185,19 +185,19 @@ export default class BeerTableView extends Vue {
 
   async onLoadMoreBeers(): Promise<void> {
     this.page++;
-    this.loadMoreBeers(this.queryObject);
+    await this.loadMoreBeers(this.queryObject);
     await this.setButtonsStatus(PaginationButtonState.LOAD_MORE);
   }
 
   async onPrevPageClick(): Promise<void> {
     this.page--;
-    this.loadSinglePage(this.queryObject);
+    await this.loadSinglePage(this.queryObject);
     await this.setButtonsStatus(PaginationButtonState.PREV);
   }
 
   async onNextPageClick(): Promise<void> {
     this.page++;
-    this.loadSinglePage(this.queryObject);
+    await this.loadSinglePage(this.queryObject);
     await this.setButtonsStatus(PaginationButtonState.NEXT);
   }
 }

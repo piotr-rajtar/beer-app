@@ -9,7 +9,7 @@ import {
 } from '@/types/typings';
 import { API_ADDRESS, tableHeaders } from './const';
 import axios from 'axios';
-import { compareFunction, getQueryString } from '@/utils';
+import { compareFunction, getUrlAddress, getErrorMessage } from '@/utils';
 
 const state: State = {
   beers: [],
@@ -46,40 +46,33 @@ export default function storeCreator(): Store<State> {
       },
     },
     actions: {
-      loadSinglePage(context, queryParams: QueryParams): void {
-        const queryString: string = getQueryString(queryParams);
-        const url: string = API_ADDRESS + queryString;
+      async loadSinglePage(context, queryParams: QueryParams): Promise<void> {
+        const url: string = getUrlAddress(API_ADDRESS, queryParams);
         context.commit('changeLoadingStatus');
-        axios
-          .get(url)
-          .then((res) => {
-            context.commit('addSinglePage', res.data);
-            context.commit('changeLoadingStatus');
-          })
-          .catch((e) => {
-            throw new Error(e);
-          });
+        try {
+          const res = await axios.get(url);
+          context.commit('addSinglePage', res.data);
+          context.commit('changeLoadingStatus');
+        } catch (e) {
+          throw getErrorMessage(e);
+        }
       },
-      loadMoreBeers(context, queryParams: QueryParams): void {
-        const queryString: string = getQueryString(queryParams);
-        const url: string = API_ADDRESS + queryString;
+      async loadMoreBeers(context, queryParams: QueryParams): Promise<void> {
+        const url: string = getUrlAddress(API_ADDRESS, queryParams);
         context.commit('changeLoadingStatus');
-        axios
-          .get(url)
-          .then((res) => {
-            context.commit('addMoreBeers', res.data);
-            context.commit('changeLoadingStatus');
-          })
-          .catch((e) => {
-            throw new Error(e);
-          });
+        try {
+          const res = await axios.get(url);
+          context.commit('addMoreBeers', res.data);
+          context.commit('changeLoadingStatus');
+        } catch (e) {
+          throw getErrorMessage(e);
+        }
       },
       async checkIfNextPageAvailable(
         _context,
         queryParams: QueryParams
       ): Promise<boolean> {
-        const queryString: string = getQueryString(queryParams);
-        const url: string = API_ADDRESS + queryString;
+        const url: string = getUrlAddress(API_ADDRESS, queryParams);
         try {
           const res = await axios.get(url);
           return res.data.length > 0;

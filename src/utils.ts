@@ -4,6 +4,7 @@ import {
   SortBy,
   SortDirection,
 } from '@/types/typings';
+import axios from 'axios';
 
 const getDateTime = (dateString: string) => {
   const [month, year]: number[] = dateString.split('/').map((item) => +item);
@@ -28,7 +29,7 @@ export const compareFunction = (
   };
 };
 
-export const getQueryString = (queryParams: QueryParams): string => {
+const getQueryString = (queryParams: QueryParams): string => {
   const queryString: string = (
     Object.keys(queryParams) as Array<keyof QueryParams>
   )
@@ -36,3 +37,16 @@ export const getQueryString = (queryParams: QueryParams): string => {
     .join();
   return `?${queryString}`;
 };
+
+export const getUrlAddress = (
+  apiAddress: string,
+  queryParams: QueryParams
+): string => {
+  const queryString: string = getQueryString(queryParams);
+  return apiAddress + queryString;
+};
+
+export const getErrorMessage = (error: unknown): string =>
+  axios.isAxiosError(error)
+    ? `Axios error: ${error.message}`
+    : `Other error: ${new Error().message}`;
