@@ -13,14 +13,17 @@
   <no-data data-test="no-data" v-if="isNoDataVisible"> No beers found </no-data>
   <component
     v-if="isTableNavigationButtonsVisible"
-    :is="loadingType"
+    :active-page="page"
     :data-test="loadingType"
-    :is-prev-button-disabled="isPrevButtonDisabled"
-    :is-next-button-disabled="isNextButtonDisabled"
+    :is="loadingType"
     :is-load-more-button-disabled="isLoadMoreButtonDisabled"
+    :is-next-button-disabled="isNextButtonDisabled"
+    :is-prev-button-disabled="isPrevButtonDisabled"
+    :pages="paginationPages"
     @load-more="debouncedLoadMoreClick()"
-    @prev-page="debouncedPrevPageClick()"
     @next-page="debouncedNextPageClick()"
+    @page-click="debouncedOnPageClick($event)"
+    @prev-page="debouncedPrevPageClick()"
   />
 </template>
 
@@ -98,6 +101,10 @@ export default class BeerTableView extends Vue {
     this.onNextPageClick,
     300
   );
+  debouncedOnPageClick: DebouncedFunc<() => Promise<void>> = debounce(
+    this.onPageClick,
+    300
+  );
 
   async mounted(): Promise<void> {
     await this.setButtonsStatus(PaginationButtonState.INITIAL);
@@ -129,6 +136,17 @@ export default class BeerTableView extends Vue {
     return {
       page: this.page,
     };
+  }
+
+  get paginationPages(): Array<number> {
+    if ([1, 2].includes(this.page)) {
+      return [1, 2, 3];
+    }
+    if (!this.isNextButtonDisabled) {
+      return [this.page - 1, this.page, this.page + 1];
+    } else {
+      return [this.page - 2, this.page - 1, this.page];
+    }
   }
 
   onSortClick(event: SortEventData): void {
@@ -175,9 +193,9 @@ export default class BeerTableView extends Vue {
     this.loadingType = navType;
   }
 
-  fetchBeers(): void {
+  async fetchBeers(): Promise<void> {
     this.page = 1;
-    this.loadSinglePage(this.queryObject);
+    await this.loadSinglePage(this.queryObject);
     if (!this.wasFetchButtonEverClicked) {
       this.wasFetchButtonEverClicked = true;
     }
@@ -197,6 +215,15 @@ export default class BeerTableView extends Vue {
 
   async onNextPageClick(): Promise<void> {
     this.page++;
+    await this.loadSinglePage(this.queryObject);
+    await this.setButtonsStatus(PaginationButtonState.NEXT);
+  }
+
+  async onPageClick(page: number): Promise<void> {
+    if (this.page === page) {
+      return;
+    }
+    this.page = page;
     await this.loadSinglePage(this.queryObject);
     await this.setButtonsStatus(PaginationButtonState.NEXT);
   }
