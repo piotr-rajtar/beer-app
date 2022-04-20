@@ -25,6 +25,7 @@ module.exports = {
       {
         singleQuote: true,
         endOfLine: 'auto',
+        printWidth: 120,
       },
     ],
     curly: 'error',
@@ -50,10 +51,7 @@ module.exports = {
 
   overrides: [
     {
-      files: [
-        '**/__tests__/*.{j,t}s?(x)',
-        '**/tests/unit/**/*.spec.{j,t}s?(x)',
-      ],
+      files: ['**/__tests__/*.{j,t}s?(x)', '**/tests/unit/**/*.spec.{j,t}s?(x)'],
       env: {
         jest: true,
       },

@@ -2,11 +2,7 @@
   <table :class="style.table">
     <thead>
       <tr>
-        <td
-          v-for="header in tableHeaders"
-          :class="style.tableCell"
-          :key="header.key"
-        >
+        <td v-for="header in tableHeaders" :class="style.tableCell" :key="header.key">
           {{ header.name }}
           <button
             v-if="header.key !== 'more'"
@@ -27,11 +23,7 @@
     </thead>
     <tbody>
       <tr v-for="beer in beerData" :key="beer.id">
-        <td
-          v-for="key in Object.keys(beer)"
-          :class="style.tableCell"
-          :key="key + beer.id"
-        >
+        <td v-for="key in Object.keys(beer)" :class="style.tableCell" :key="key + beer.id">
           {{ beer[key] || '-' }}
         </td>
         <td :class="style.tableCell">More</td>
@@ -42,12 +34,7 @@
 
 <script lang="ts">
 import { Vue, prop, Options } from 'vue-class-component';
-import {
-  BeerSimplified,
-  SortDirection,
-  SortEventData,
-  SortBy,
-} from '@/types/typings';
+import { BeerSimplified, SortDirection, SortEventData, SortBy } from '@/types/typings';
 
 type TableHeader = Array<{ key: string; name: string }>;
 
