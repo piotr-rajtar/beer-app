@@ -1,12 +1,5 @@
 import { createStore, Store } from 'vuex';
-import {
-  Beer,
-  BeerSimplified,
-  State,
-  BeerSimplifiedI,
-  SortFunction,
-  QueryParams,
-} from '@/types/typings';
+import { Beer, BeerSimplified, State, BeerSimplifiedI, SortFunction, QueryParams } from '@/types/typings';
 import { API_ADDRESS, tableHeaders } from './const';
 import axios from 'axios';
 import { compareFunction, getUrlAddress, getErrorMessage } from '@/utils';
@@ -28,10 +21,7 @@ export default function storeCreator(): Store<State> {
         });
       },
       getSortedBeersData(_state, getters): SortFunction {
-        return (sortDirection, sortBy) =>
-          getters.getSimplifiedBeersData.sort(
-            compareFunction(sortDirection, sortBy)
-          );
+        return (sortDirection, sortBy) => getters.getSimplifiedBeersData.sort(compareFunction(sortDirection, sortBy));
       },
     },
     mutations: {
@@ -52,10 +42,10 @@ export default function storeCreator(): Store<State> {
         try {
           const res = await axios.get(url);
           context.commit('addSinglePage', res.data);
-          context.commit('changeLoadingStatus');
         } catch (e) {
           throw getErrorMessage(e);
         }
+        context.commit('changeLoadingStatus');
       },
       async loadMoreBeers(context, queryParams: QueryParams): Promise<void> {
         const url: string = getUrlAddress(API_ADDRESS, queryParams);
@@ -63,22 +53,21 @@ export default function storeCreator(): Store<State> {
         try {
           const res = await axios.get(url);
           context.commit('addMoreBeers', res.data);
-          context.commit('changeLoadingStatus');
         } catch (e) {
           throw getErrorMessage(e);
         }
+        context.commit('changeLoadingStatus');
       },
-      async checkIfNextPageAvailable(
-        _context,
-        queryParams: QueryParams
-      ): Promise<boolean> {
+      async checkIfNextPageAvailable(context, queryParams: QueryParams): Promise<boolean> {
         const url: string = getUrlAddress(API_ADDRESS, queryParams);
+        let isPageAvailable: boolean = false;
         try {
           const res = await axios.get(url);
-          return res.data.length > 0;
-        } catch {
-          return false;
+          isPageAvailable = res.data.length > 0;
+        } catch (e) {
+          throw getErrorMessage(e);
         }
+        return isPageAvailable;
       },
     },
   });

@@ -1,69 +1,95 @@
 <template>
   <nav>
-    <beer-button :is-disabled="isPrevButtonDisabled" @click="onPrevClick">
-      Prev
-    </beer-button>
-    <span>
-      <span
-        v-for="page in pages"
-        :key="`page_${page}`"
-        :class="[style.pageNumber, { [style.activePage]: page === activePage }]"
-        @click="onPageClick(page)"
-      >
-        {{ page }}
-      </span>
-    </span>
-    <beer-button :is-disabled="isNextButtonDisabled" @click="onNextClick">
-      Next
-    </beer-button>
+    <button :class="style.button" :disabled="isPrevButtonDisabled" @click="onPrevClick">Prev</button>
+    <span :class="style.pageNumber">{{ pageNumber }}</span>
+    <button :class="style.button" :disabled="isNextButtonDisabled" @click="onNextClick">Next</button>
   </nav>
 </template>
 
 <script lang="ts">
 import { Options, prop, Vue } from 'vue-class-component';
-import BeerButton from '@/components/shared/BeerButton.vue';
+import { mapActions } from 'vuex';
+import { PaginationButtonState, QueryParams } from '@/types/typings';
 
 class Props {
-  isPrevButtonDisabled = prop({
-    type: Boolean,
-  });
-  isNextButtonDisabled = prop({
-    type: Boolean,
-  });
-  pages = prop({
-    type: Array,
-    default: [],
-  });
   activePage = prop({
     type: Number,
+    default: 1,
   });
 }
 
 @Options({
-  components: { BeerButton },
-  emits: ['prevPage', 'nextPage', 'pageClick'],
+  emits: ['prevPage', 'nextPage'],
+  methods: {
+    ...mapActions(['checkIfNextPageAvailable']),
+  },
+  watch: {
+    pageNumber: async function onPageChange(newPage, oldPage) {
+      if (oldPage < newPage) {
+        const isNextPageAvailable: boolean = await this.checkIfNextPageAvailable({
+          page: newPage + 1,
+        });
+        await this.setButtonsStatus(PaginationButtonState.NEXT, isNextPageAvailable);
+      } else {
+        await this.setButtonsStatus(PaginationButtonState.PREV, true);
+      }
+    },
+    activePage: function onPageChange(newPage) {
+      if (newPage === 1) {
+        this.pageNumber = newPage;
+      }
+    },
+  },
 })
 export default class Pagination extends Vue.with(Props) {
+  checkIfNextPageAvailable!: (query: QueryParams) => Promise<boolean>;
+  isPrevButtonDisabled: boolean = true;
+  isNextButtonDisabled: boolean = false;
+  pageNumber: number = 1;
+
+  async mounted(): Promise<void> {
+    const isNextPageAvailable: boolean = await this.checkIfNextPageAvailable({
+      page: this.pageNumber + 1,
+    });
+    this.setButtonsStatus(PaginationButtonState.DEFAULT, isNextPageAvailable);
+  }
+
+  setButtonsStatus(buttonState: PaginationButtonState, isNextPageAvailable: boolean): void {
+    switch (buttonState) {
+      case PaginationButtonState.DEFAULT:
+      default:
+        this.isPrevButtonDisabled = true;
+        this.isNextButtonDisabled = !isNextPageAvailable;
+        return;
+      case PaginationButtonState.PREV:
+        this.isPrevButtonDisabled = this.pageNumber === 1;
+        this.isNextButtonDisabled = false;
+        return;
+      case PaginationButtonState.NEXT:
+        this.isPrevButtonDisabled = false;
+        this.isNextButtonDisabled = !isNextPageAvailable;
+        return;
+    }
+  }
+
   onPrevClick(): void {
-    this.$emit('prevPage');
+    this.pageNumber--;
+    this.$emit('prevPage', this.pageNumber);
   }
   onNextClick(): void {
-    this.$emit('nextPage');
-  }
-  onPageClick(page: number): void {
-    this.$emit('pageClick', page);
+    this.pageNumber++;
+    this.$emit('nextPage', this.pageNumber);
   }
 }
 </script>
 
 <style scoped lang="scss" module="style">
-.pageNumber {
-  margin: 0 25px;
-  cursor: pointer;
+.button {
+  width: 50px;
+  height: 50px;
 }
 
-.activePage {
-  color: blue;
-  font-weight: bold;
+.pageNumber {
+  margin: 0 25px;
 }
 </style>

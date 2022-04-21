@@ -92,17 +92,14 @@ export interface SortEventData {
   sortBy: SortBy | null;
 }
 
-export type SortFunction = (
-  sortDirection: SortDirection,
-  sortBy: SortBy
-) => BeerSimplified[];
+export type SortFunction = (sortDirection: SortDirection, sortBy: SortBy) => BeerSimplified[];
 
 export interface QueryParams {
   page: number;
 }
 
 export enum PaginationButtonState {
-  INITIAL,
+  DEFAULT,
   NEXT,
   PREV,
   LOAD_MORE,
