@@ -21,16 +21,16 @@ export const compareFunction = (sortDirection: SortDirection, sortBy: SortBy) =>
   };
 };
 
-const getQueryString = (queryParams: QueryParams): string => {
+export const getQueryString = (queryParams: QueryParams): string => {
   const queryString: string = (Object.keys(queryParams) as Array<keyof QueryParams>)
     .map((queryParamKey) => `${queryParamKey}=${queryParams[queryParamKey]}`)
     .join();
-  return `?${queryString}`;
+  return queryString;
 };
 
 export const getUrlAddress = (apiAddress: string, queryParams: QueryParams): string => {
   const queryString: string = getQueryString(queryParams);
-  return apiAddress + queryString;
+  return `${apiAddress}?${queryString}`;
 };
 
 export const getErrorMessage = (error: unknown): string =>

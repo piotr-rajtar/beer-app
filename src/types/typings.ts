@@ -79,6 +79,9 @@ export type BeerSimplifiedI = {
 export interface State {
   beers: Beer[];
   loadingStatus: boolean;
+  cachedBeers: {
+    [key: string]: Beer[];
+  };
 }
 
 export type LoadingType = 'LoadMore' | 'Pagination';
@@ -102,5 +105,4 @@ export enum PaginationButtonState {
   DEFAULT,
   NEXT,
   PREV,
-  LOAD_MORE,
 }

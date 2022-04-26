@@ -2,23 +2,11 @@
   <fieldset :class="style.navTypeContainer">
     <legend>Choose navigation type</legend>
     <span :class="style.navType">
-      <input
-        type="radio"
-        id="loadMore"
-        value="LoadMore"
-        v-model="loadingType"
-        @change="onChange"
-      />
+      <input v-model="loadingType" id="loadMore" type="radio" value="LoadMore" @change="onChange" />
       <label for="loadMore">Load more</label>
     </span>
     <span>
-      <input
-        type="radio"
-        id="pagination"
-        value="Pagination"
-        v-model="loadingType"
-        @change="onChange"
-      />
+      <input v-model="loadingType" id="pagination" type="radio" value="Pagination" @change="onChange" />
       <label for="pagination">Pagination</label>
     </span>
   </fieldset>
