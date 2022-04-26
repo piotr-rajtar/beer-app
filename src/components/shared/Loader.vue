@@ -12,8 +12,7 @@ export default class Loader extends Vue {}
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: radial-gradient(farthest-side, #ffa516 94%, #0000) top/8px 8px
-      no-repeat,
+  background: radial-gradient(farthest-side, #ffa516 94%, #0000) top/8px 8px no-repeat,
     conic-gradient(#0000 30%, #ffa516);
   mask: radial-gradient(farthest-side, #0000 calc(100% - 8px), #000 0);
   -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 8px), #000 0);
