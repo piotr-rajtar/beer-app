@@ -82,9 +82,16 @@ export interface State {
   cachedBeers: {
     [key: string]: Beer[];
   };
+  areAllDataFetched: boolean;
 }
 
-export type LoadingType = 'LoadMore' | 'Pagination';
+export type LoadingComponentType = 'LoadMore' | 'Pagination' | 'InfiniteScroll';
+
+export enum LoadingComponent {
+  LOAD_MORE,
+  PAGINATION,
+  INFINITE_SCROLL,
+}
 
 export type SortDirection = 'asc' | 'dsc' | 'none';
 
@@ -105,4 +112,15 @@ export enum PaginationButtonState {
   DEFAULT,
   NEXT,
   PREV,
+}
+
+export interface CachePageParam {
+  mutation: string;
+  cachedPage: Beer[];
+}
+
+export interface FetchBeerDataParam {
+  mutation: string;
+  queryParams: QueryParams;
+  keyQuery: string;
 }

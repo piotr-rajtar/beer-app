@@ -2,28 +2,51 @@
   <fieldset :class="style.navTypeContainer">
     <legend>Choose navigation type</legend>
     <span :class="style.navType">
-      <input v-model="loadingType" id="loadMore" type="radio" value="LoadMore" @change="onChange" />
+      <input
+        id="loadMore"
+        v-model="navigationType"
+        :value="LoadingComponent.LOAD_MORE"
+        type="radio"
+        @change="onChange"
+      />
       <label for="loadMore">Load more</label>
     </span>
     <span>
-      <input v-model="loadingType" id="pagination" type="radio" value="Pagination" @change="onChange" />
+      <input
+        id="pagination"
+        v-model="navigationType"
+        :value="LoadingComponent.PAGINATION"
+        type="radio"
+        @change="onChange"
+      />
       <label for="pagination">Pagination</label>
+    </span>
+    <span>
+      <input
+        id="infiniteScroll"
+        v-model="navigationType"
+        :value="LoadingComponent.INFINITE_SCROLL"
+        type="radio"
+        @change="onChange"
+      />
+      <label for="infiniteScroll">Infinite Scroll</label>
     </span>
   </fieldset>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { LoadingType } from '@/types/typings';
+import { LoadingComponent } from '@/types/typings';
 
 @Options({
   emits: ['change'],
 })
 export default class BeerTableNavigation extends Vue {
-  loadingType: LoadingType = 'LoadMore';
+  LoadingComponent = LoadingComponent;
+  navigationType: LoadingComponent = LoadingComponent.LOAD_MORE;
 
   onChange(): void {
-    this.$emit('change', this.loadingType);
+    this.$emit('change', this.navigationType);
   }
 }
 </script>

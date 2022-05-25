@@ -1,5 +1,14 @@
 import { createStore, Store } from 'vuex';
-import { Beer, BeerSimplified, State, BeerSimplifiedI, SortFunction, QueryParams } from '@/types/typings';
+import {
+  Beer,
+  BeerSimplified,
+  State,
+  BeerSimplifiedI,
+  SortFunction,
+  QueryParams,
+  CachePageParam,
+  FetchBeerDataParam,
+} from '@/types/typings';
 import { API_ADDRESS, tableHeaders } from './const';
 import axios from 'axios';
 import { compareFunction, getUrlAddress, getErrorMessage, getQueryString } from '@/utils';
@@ -8,6 +17,7 @@ const state: State = {
   beers: [],
   loadingStatus: false,
   cachedBeers: {},
+  areAllDataFetched: false,
 };
 
 export default function storeCreator(): Store<State> {
@@ -32,58 +42,105 @@ export default function storeCreator(): Store<State> {
       addMoreBeers(state, payload: Beer[]): void {
         state.beers = [...state.beers, ...payload];
       },
-      changeLoadingStatus(state): void {
-        state.loadingStatus = !state.loadingStatus;
+      setLoadingStatus(state, newStatus: boolean): void {
+        state.loadingStatus = newStatus;
+      },
+      setDataFetchingCompletion(state): void {
+        state.areAllDataFetched = true;
+      },
+      setInitialDataFetchingState(state): void {
+        state.areAllDataFetched = false;
       },
     },
     actions: {
-      async loadSinglePage(context, queryParams: QueryParams): Promise<void> {
+      addCachedPage(context, params: CachePageParam): void {
+        const { mutation, cachedPage } = params;
+        context.commit(mutation, cachedPage);
+      },
+      async fetchBeerData(context, params: FetchBeerDataParam) {
+        const { mutation, queryParams, keyQuery } = params;
         const url: string = getUrlAddress(API_ADDRESS, queryParams);
-        const keyQuery: string = getQueryString(queryParams);
-        context.commit('changeLoadingStatus');
-        if (state.cachedBeers[keyQuery]) {
-          context.commit('addSinglePage', state.cachedBeers[keyQuery]);
-          context.commit('changeLoadingStatus');
-          return;
-        }
         try {
           const res = await axios.get(url);
-          state.cachedBeers[keyQuery] = res.data;
-          context.commit('addSinglePage', res.data);
+          if (res.data.length) {
+            state.cachedBeers[keyQuery] = res.data;
+            context.commit(mutation, res.data);
+          } else {
+            context.commit('setDataFetchingCompletion');
+          }
         } catch (e) {
           throw getErrorMessage(e);
         }
-        context.commit('changeLoadingStatus');
+      },
+      async loadSinglePage(context, queryParams: QueryParams): Promise<void> {
+        const keyQuery: string = getQueryString(queryParams);
+        const cachedPage: Beer[] = state.cachedBeers[keyQuery];
+        context.commit('setLoadingStatus', true);
+        if (cachedPage) {
+          const cachedPageParam: CachePageParam = {
+            mutation: 'addSinglePage',
+            cachedPage,
+          };
+          this.dispatch('addCachedPage', cachedPageParam);
+          context.commit('setLoadingStatus', false);
+          return;
+        }
+        if (state.areAllDataFetched) {
+          context.commit('setLoadingStatus', false);
+          return;
+        }
+        const fetchBeerDataParam: FetchBeerDataParam = {
+          mutation: 'addSinglePage',
+          queryParams,
+          keyQuery,
+        };
+        await this.dispatch('fetchBeerData', fetchBeerDataParam);
+        context.commit('setLoadingStatus', false);
       },
       async loadMoreBeers(context, queryParams: QueryParams): Promise<void> {
-        const url: string = getUrlAddress(API_ADDRESS, queryParams);
         const keyQuery: string = getQueryString(queryParams);
-        context.commit('changeLoadingStatus');
-        if (state.cachedBeers[keyQuery]) {
-          context.commit('addMoreBeers', state.cachedBeers[keyQuery]);
-          context.commit('changeLoadingStatus');
+        const cachedPage: Beer[] = state.cachedBeers[keyQuery];
+        context.commit('setLoadingStatus', true);
+        if (cachedPage) {
+          const cachedPageParam: CachePageParam = {
+            mutation: 'addMoreBeers',
+            cachedPage,
+          };
+          this.dispatch('addCachedPage', cachedPageParam);
+          context.commit('setLoadingStatus', false);
           return;
         }
-        try {
-          const res = await axios.get(url);
-          state.cachedBeers[keyQuery] = res.data;
-          context.commit('addMoreBeers', res.data);
-        } catch (e) {
-          throw getErrorMessage(e);
+        if (state.areAllDataFetched) {
+          context.commit('setLoadingStatus', false);
+          return;
         }
-        context.commit('changeLoadingStatus');
+        const fetchBeerDataParam: FetchBeerDataParam = {
+          mutation: 'addMoreBeers',
+          queryParams,
+          keyQuery,
+        };
+        await this.dispatch('fetchBeerData', fetchBeerDataParam);
+        context.commit('setLoadingStatus', false);
       },
-      async checkIfNextPageAvailable(_context, queryParams: QueryParams): Promise<boolean> {
+      async checkIfNextPageAvailable(context, queryParams: QueryParams): Promise<boolean> {
         const url: string = getUrlAddress(API_ADDRESS, queryParams);
         const keyQuery: string = getQueryString(queryParams);
+        const cachedPage: Beer[] = state.cachedBeers[keyQuery];
         let isPageAvailable: boolean = false;
-        if (state.cachedBeers[keyQuery] && state.cachedBeers[keyQuery].length) {
+        if (cachedPage) {
           return true;
+        }
+        if (state.areAllDataFetched) {
+          return false;
         }
         try {
           const res = await axios.get(url);
-          isPageAvailable = res.data.length > 0;
-          state.cachedBeers[keyQuery] = res.data;
+          if (res.data.length) {
+            isPageAvailable = true;
+            state.cachedBeers[keyQuery] = res.data;
+          } else {
+            context.commit('setDataFetchingCompletion');
+          }
         } catch (e) {
           throw getErrorMessage(e);
         }
