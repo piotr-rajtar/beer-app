@@ -13,8 +13,8 @@
   <component
     v-if="isTableVisible"
     :active-page="page"
-    :data-test="loadingComponent"
-    :is="loadingComponent"
+    :data-test="navigationType"
+    :is="navigationType"
     @load-more="onLoadMoreBeers"
     @next-page="onNextPageClick"
     @prev-page="onPrevPageClick"
@@ -28,24 +28,23 @@ import { Options, Vue } from 'vue-class-component';
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import {
   BeerSimplified,
-  LoadingComponent,
-  LoadingComponentType,
+  DataLoaderComponent,
   SortDirection,
   SortEventData,
   SortFunction,
   SortBy,
   QueryParams,
 } from '@/types/typings';
-import BeerTableNavigation from '@/components/beerTable/BeerTableNavigation.vue';
-import BeerTable from '@/components/beerTable/BeerTable.vue';
-import Pagination from '@/components/beerTable/Pagination.vue';
-import LoadMore from '@/components/beerTable/LoadMore.vue';
-import InfiniteScroll from '@/components/beerTable/InfiniteScroll.vue';
-import BeerButton from '@/components/shared/BeerButton.vue';
-import NoData from '@/components/shared/NoData.vue';
-import Loader from '@/components/shared/Loader.vue';
 import debounce from 'lodash/debounce';
 import { DebouncedFunc } from 'lodash';
+import BeerButton from '@/components/shared/BeerButton.vue';
+import BeerTableNavigation from '@/components/beerTable/BeerTableNavigation.vue';
+import BeerTable from '@/components/beerTable/BeerTable.vue';
+import InfiniteScroll from '@/components/beerTable/InfiniteScroll.vue';
+import Loader from '@/components/shared/Loader.vue';
+import LoadMore from '@/components/beerTable/LoadMore.vue';
+import NoData from '@/components/shared/NoData.vue';
+import Pagination from '@/components/beerTable/Pagination.vue';
 
 @Options({
   methods: {
@@ -56,50 +55,34 @@ import { DebouncedFunc } from 'lodash';
     ...mapGetters(['getSimplifiedBeersData', 'getSortedBeersData']),
   },
   components: {
-    BeerTable,
     BeerButton,
-    NoData,
-    Loader,
-    Pagination,
-    LoadMore,
-    InfiniteScroll,
     BeerTableNavigation,
+    BeerTable,
+    InfiniteScroll,
+    Loader,
+    LoadMore,
+    NoData,
+    Pagination,
   },
 })
 export default class BeerTableView extends Vue {
+  getSimplifiedBeersData!: BeerSimplified[];
+  getSortedBeersData!: SortFunction;
   loadMoreBeers!: (query: QueryParams) => Promise<void>;
   loadSinglePage!: (query: QueryParams) => Promise<void>;
-  getSortedBeersData!: SortFunction;
   setInitialDataFetchingState!: () => void;
-  getSimplifiedBeersData!: BeerSimplified[];
 
-  wasFetchButtonEverClicked: boolean = false;
-  navigationType: LoadingComponent = LoadingComponent.LOAD_MORE;
-  sortDirection: SortDirection = 'none';
-  sortBy: SortBy | null = null;
-  page: number = 1;
   debouncedFetchBeers: DebouncedFunc<() => void> = debounce(this.fetchBeers, 300);
+  navigationType: DataLoaderComponent = DataLoaderComponent.LOAD_MORE;
+  page: number = 1;
+  sortBy: SortBy | null = null;
+  sortDirection: SortDirection = SortDirection.NONE;
+  wasFetchButtonEverClicked: boolean = false;
 
   get beersData(): BeerSimplified[] {
-    return this.sortDirection === 'none'
+    return this.sortDirection === SortDirection.NONE
       ? this.getSimplifiedBeersData
       : this.getSortedBeersData(this.sortDirection, this.sortBy as SortBy);
-  }
-
-  get loadingComponent(): LoadingComponentType {
-    switch (this.navigationType) {
-      case LoadingComponent.LOAD_MORE:
-      default:
-        return 'LoadMore';
-      case LoadingComponent.PAGINATION:
-        return 'Pagination';
-      case LoadingComponent.INFINITE_SCROLL:
-        return 'InfiniteScroll';
-    }
-  }
-
-  get isTableVisible(): boolean {
-    return !!this.getSimplifiedBeersData.length;
   }
 
   get isLoaderVisible(): boolean {
@@ -108,6 +91,10 @@ export default class BeerTableView extends Vue {
 
   get isNoDataVisible(): boolean {
     return !this.getSimplifiedBeersData.length && !this.$store.state.loadingStatus && this.wasFetchButtonEverClicked;
+  }
+
+  get isTableVisible(): boolean {
+    return !!this.getSimplifiedBeersData.length;
   }
 
   get queryObject(): QueryParams {
@@ -120,19 +107,13 @@ export default class BeerTableView extends Vue {
     const shouldBeApplied: boolean = this.sortBy !== event.sortBy || this.sortDirection !== event.sortDirection;
 
     this.sortBy = shouldBeApplied ? event.sortBy : null;
-    this.sortDirection = shouldBeApplied ? event.sortDirection : 'none';
+    this.sortDirection = shouldBeApplied ? event.sortDirection : SortDirection.NONE;
   }
 
   setTableInitialState(): void {
     this.sortBy = null;
-    this.sortDirection = 'none';
+    this.sortDirection = SortDirection.NONE;
     this.page = 1;
-  }
-
-  async onNavChange(navigationType: LoadingComponent): Promise<void> {
-    this.navigationType = navigationType;
-    this.setTableInitialState();
-    await this.loadSinglePage(this.queryObject);
   }
 
   async fetchBeers(): Promise<void> {
@@ -149,8 +130,9 @@ export default class BeerTableView extends Vue {
     await this.loadMoreBeers(this.queryObject);
   }
 
-  async onPrevPageClick(): Promise<void> {
-    this.page--;
+  async onNavChange(navigationType: DataLoaderComponent): Promise<void> {
+    this.navigationType = navigationType;
+    this.setTableInitialState();
     await this.loadSinglePage(this.queryObject);
   }
 
@@ -158,7 +140,10 @@ export default class BeerTableView extends Vue {
     this.page++;
     await this.loadSinglePage(this.queryObject);
   }
+
+  async onPrevPageClick(): Promise<void> {
+    this.page--;
+    await this.loadSinglePage(this.queryObject);
+  }
 }
 </script>
-
-<style scoped lang="scss" module="style"></style>

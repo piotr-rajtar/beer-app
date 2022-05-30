@@ -21,41 +21,45 @@ class Props {
 }
 
 @Options({
-  emits: ['prevPage', 'nextPage'],
+  emits: ['nextPage', 'prevPage'],
   methods: {
     ...mapActions(['checkIfNextPageAvailable']),
   },
   watch: {
+    activePage: function onActivePageChange(newPageNumber: number): void {
+      this.onActivePageChange(newPageNumber);
+    },
     pageNumber: async function onPageChange(newPage, oldPage) {
-      if (oldPage < newPage) {
-        const isNextPageAvailable: boolean = await this.checkIfNextPageAvailable({
-          page: newPage + 1,
-        });
-        await this.setButtonsStatus(PaginationButtonState.NEXT, isNextPageAvailable);
-      } else {
-        await this.setButtonsStatus(PaginationButtonState.PREV, true);
-      }
+      await this.onPageChange(newPage, oldPage);
     },
-    activePage: function onPageChange(newPage) {
-      if (newPage === 1) {
-        this.pageNumber = newPage;
-      }
-    },
+  },
+  mounted: async function onMount(): Promise<void> {
+    await this.setPaginationButtonState();
   },
 })
 export default class Pagination extends Vue.with(Props) {
   checkIfNextPageAvailable!: (query: QueryParams) => Promise<boolean>;
-  isPrevButtonDisabled: boolean = true;
-  isNextButtonDisabled: boolean = false;
-  pageNumber: number = 1;
+
   debouncedOnPrevClick: DebouncedFunc<() => void> = debounce(this.onPrevClick, 300);
   debouncedOnNextClick: DebouncedFunc<() => void> = debounce(this.onNextClick, 300);
+  isNextButtonDisabled: boolean = false;
+  isPrevButtonDisabled: boolean = true;
+  pageNumber: number = 1;
 
-  async mounted(): Promise<void> {
-    const isNextPageAvailable: boolean = await this.checkIfNextPageAvailable({
-      page: this.pageNumber + 1,
-    });
-    this.setButtonsStatus(PaginationButtonState.DEFAULT, isNextPageAvailable);
+  onActivePageChange(newActivePageNumber: number): void {
+    if (newActivePageNumber === 1) {
+      this.pageNumber = 1;
+    }
+  }
+
+  onNextClick(): void {
+    this.pageNumber++;
+    this.$emit('nextPage');
+  }
+
+  onPrevClick(): void {
+    this.pageNumber--;
+    this.$emit('prevPage');
   }
 
   setButtonsStatus(buttonState: PaginationButtonState, isNextPageAvailable: boolean): void {
@@ -76,13 +80,22 @@ export default class Pagination extends Vue.with(Props) {
     }
   }
 
-  onPrevClick(): void {
-    this.pageNumber--;
-    this.$emit('prevPage');
+  async onPageChange(newPage: number, oldPage: number): Promise<void> {
+    if (oldPage < newPage) {
+      const isNextPageAvailable: boolean = await this.checkIfNextPageAvailable({
+        page: newPage + 1,
+      });
+      await this.setButtonsStatus(PaginationButtonState.NEXT, isNextPageAvailable);
+    } else {
+      await this.setButtonsStatus(PaginationButtonState.PREV, true);
+    }
   }
-  onNextClick(): void {
-    this.pageNumber++;
-    this.$emit('nextPage');
+
+  async setPaginationButtonState(): Promise<void> {
+    const isNextPageAvailable: boolean = await this.checkIfNextPageAvailable({
+      page: this.pageNumber + 1,
+    });
+    this.setButtonsStatus(PaginationButtonState.DEFAULT, isNextPageAvailable);
   }
 }
 </script>

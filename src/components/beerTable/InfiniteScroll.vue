@@ -35,18 +35,13 @@ class Props {
   },
 })
 export default class InfinityScroll extends Vue.with(Props) {
-  pageNumber: number = 1;
   getLoadingStatus!: boolean;
   debouncedOnLoadMore: DebouncedFunc<() => Promise<void>> = debounce(this.onLoadMore, 300);
+  pageNumber: number = 1;
 
   get numberOfInitialFetchNeeded(): number {
     const beerTable: DOMRect = (document.getElementById('beerTable') as HTMLTableElement).getBoundingClientRect();
     return Math.floor((window.innerHeight - beerTable.top) / beerTable.height);
-  }
-
-  onLoadMore(): void {
-    this.pageNumber++;
-    this.$emit('loadMore');
   }
 
   onDataFetchCompletion(newStatus: boolean): void {
@@ -55,16 +50,14 @@ export default class InfinityScroll extends Vue.with(Props) {
     }
   }
 
+  onLoadMore(): void {
+    this.pageNumber++;
+    this.$emit('loadMore');
+  }
+
   async initialFetcher(): Promise<void> {
     for (let counter = 0; counter < this.numberOfInitialFetchNeeded; counter++) {
       await this.onLoadMore();
-    }
-  }
-
-  async onScroll(): Promise<void> {
-    const isBottomOfWindowReached = window.innerHeight + window.scrollY >= document.body.offsetHeight;
-    if (isBottomOfWindowReached && !this.$store.state.loadingStatus) {
-      this.debouncedOnLoadMore();
     }
   }
 
@@ -75,6 +68,12 @@ export default class InfinityScroll extends Vue.with(Props) {
       window.addEventListener('scroll', this.onScroll);
     }
   }
+
+  async onScroll(): Promise<void> {
+    const isBottomOfWindowReached = window.innerHeight + window.scrollY >= document.body.offsetHeight;
+    if (isBottomOfWindowReached && !this.$store.state.loadingStatus) {
+      this.debouncedOnLoadMore();
+    }
+  }
 }
 </script>
-<style lang="scss" module="style"></style>

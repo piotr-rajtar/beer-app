@@ -5,25 +5,25 @@
         <td v-for="header in tableHeaders" :class="style.tableCell" :key="header.key">
           {{ header.name }}
           <button
-            v-if="header.key !== 'more'"
-            :class="isSortClicked('asc', header.key) ? style.sortClicked : null"
-            @click="onSortClick('asc', header.key)"
+            v-if="isSortButtonVisible(header)"
+            :class="isSortClicked(SortDirection.ASC, header.key) ? style.sortClicked : null"
+            @click="onSortClick(SortDirection.ASC, header.key)"
           >
             ASC
           </button>
           <button
-            v-if="header.key !== 'more'"
-            :class="isSortClicked('dsc', header.key) ? style.sortClicked : null"
-            @click="onSortClick('dsc', header.key)"
+            v-if="isSortButtonVisible(header)"
+            :class="isSortClicked(SortDirection.DESC, header.key) ? style.sortClicked : null"
+            @click="onSortClick(SortDirection.DESC, header.key)"
           >
-            DSC
+            DESC
           </button>
         </td>
       </tr>
     </thead>
     <tbody>
       <tr v-for="beer in beerData" :key="beer.id">
-        <td v-for="key in Object.keys(beer)" :class="style.tableCell" :key="key + beer.id">
+        <td v-for="key in getSingleBeerObjectKeys(beer)" :class="style.tableCell" :key="key + beer.id">
           {{ beer[key] || '-' }}
         </td>
         <td :class="style.tableCell">More</td>
@@ -34,18 +34,24 @@
 
 <script lang="ts">
 import { Vue, prop, Options } from 'vue-class-component';
-import { BeerSimplified, SortDirection, SortEventData, SortBy } from '@/types/typings';
-
-type TableHeader = Array<{ key: string; name: string }>;
+import {
+  BeerSimplified,
+  SortDirection,
+  SortEventData,
+  SortBy,
+  TableHeader,
+  TableHeaderKey,
+  TableHeaders,
+} from '@/types/typings';
 
 class Props {
   beerData: BeerSimplified[] = prop({
     required: true,
   });
-  sortDirection: SortDirection = prop({
+  sortBy: SortBy | null = prop({
     required: true,
   });
-  sortBy: SortBy | null = prop({
+  sortDirection: SortDirection = prop({
     required: true,
   });
 }
@@ -54,7 +60,9 @@ class Props {
   emits: ['sort'],
 })
 export default class BeerTable extends Vue.with(Props) {
-  get tableHeaders(): TableHeader {
+  SortDirection = SortDirection;
+
+  get tableHeaders(): TableHeaders {
     return [
       {
         key: 'id',
@@ -91,16 +99,26 @@ export default class BeerTable extends Vue.with(Props) {
     ];
   }
 
-  isSortClicked(sortDirection: SortDirection, sortBy: SortBy): boolean {
+  getSingleBeerObjectKeys(beer: BeerSimplified): Array<keyof BeerSimplified> {
+    return Object.keys(beer) as Array<keyof BeerSimplified>;
+  }
+
+  isSortButtonVisible(header: TableHeader): boolean {
+    return header.key !== 'more';
+  }
+
+  isSortClicked(sortDirection: SortDirection, sortBy: TableHeaderKey): boolean {
     return this.sortDirection === sortDirection && this.sortBy === sortBy;
   }
 
-  onSortClick(sortDirection: SortDirection, sortBy: SortBy): void {
-    const eventData: SortEventData = {
-      sortDirection,
-      sortBy,
-    };
-    this.$emit('sort', eventData);
+  onSortClick(sortDirection: SortDirection, sortBy: TableHeaderKey): void {
+    if (sortBy !== 'more') {
+      const eventData: SortEventData = {
+        sortDirection,
+        sortBy,
+      };
+      this.$emit('sort', eventData);
+    }
   }
 }
 </script>

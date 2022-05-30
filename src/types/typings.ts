@@ -1,17 +1,11 @@
-interface Volume {
-  unit: 'litres' | 'grams' | 'kilograms' | 'celsius';
-  value: number;
+//BEER DATA TYPES
+interface Fermentation {
+  temp: Volume;
 }
-
 interface Hop {
   add: 'start' | 'middle' | 'end';
   amount: Volume;
   attribute: string;
-  name: string;
-}
-
-interface Malt {
-  amount: Volume;
   name: string;
 }
 
@@ -21,8 +15,9 @@ interface Ingredients {
   yeast: string;
 }
 
-interface Fermentation {
-  temp: Volume;
+interface Malt {
+  amount: Volume;
+  name: string;
 }
 
 interface MashTemp {
@@ -34,6 +29,10 @@ interface Method {
   fermentation: Fermentation;
   mash_temp: MashTemp[];
   twist: null | string;
+}
+interface Volume {
+  unit: 'litres' | 'grams' | 'kilograms' | 'celsius';
+  value: number;
 }
 
 export interface Beer {
@@ -70,12 +69,13 @@ export interface BeerSimplified {
   ph: number | string;
 }
 
+//STORE TYPES
 type TableKeys = 'id' | 'name' | 'first_brewed' | 'abv' | 'ibu' | 'ebc' | 'ph';
 
-export type BeerSimplifiedI = {
-  [key in TableKeys]: number | string | null;
-};
-
+export interface CachedPage {
+  keyQuery: string;
+  page: Beer[];
+}
 export interface State {
   beers: Beer[];
   loadingStatus: boolean;
@@ -85,27 +85,35 @@ export interface State {
   areAllDataFetched: boolean;
 }
 
-export type LoadingComponentType = 'LoadMore' | 'Pagination' | 'InfiniteScroll';
-
-export enum LoadingComponent {
-  LOAD_MORE,
-  PAGINATION,
-  INFINITE_SCROLL,
+export interface QueryParams {
+  page: number;
 }
 
-export type SortDirection = 'asc' | 'dsc' | 'none';
+export type BeerSimplifiedI = {
+  [key in TableKeys]: number | string | null;
+};
 
-export type SortBy = keyof BeerSimplified;
+//SORT TYPES
+export enum SortDirection {
+  ASC = 'asc',
+  DESC = 'desc',
+  NONE = 'none',
+}
 
 export interface SortEventData {
   sortDirection: SortDirection;
   sortBy: SortBy | null;
 }
 
+export type SortBy = keyof BeerSimplified;
+
 export type SortFunction = (sortDirection: SortDirection, sortBy: SortBy) => BeerSimplified[];
 
-export interface QueryParams {
-  page: number;
+//LOADING COMPONENTS TYPES
+export enum DataLoaderComponent {
+  LOAD_MORE = 'LoadMore',
+  PAGINATION = 'Pagination',
+  INFINITE_SCROLL = 'InfiniteScroll',
 }
 
 export enum PaginationButtonState {
@@ -114,13 +122,12 @@ export enum PaginationButtonState {
   PREV,
 }
 
-export interface CachePageParam {
-  mutation: string;
-  cachedPage: Beer[];
+//BEER TABLE TYPES
+export interface TableHeader {
+  key: TableHeaderKey;
+  name: string;
 }
 
-export interface FetchBeerDataParam {
-  mutation: string;
-  queryParams: QueryParams;
-  keyQuery: string;
-}
+export type TableHeaderKey = keyof BeerSimplified | 'more';
+
+export type TableHeaders = Array<TableHeader>;

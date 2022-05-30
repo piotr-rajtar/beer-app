@@ -1,23 +1,15 @@
 import { createStore, Store } from 'vuex';
-import {
-  Beer,
-  BeerSimplified,
-  State,
-  BeerSimplifiedI,
-  SortFunction,
-  QueryParams,
-  CachePageParam,
-  FetchBeerDataParam,
-} from '@/types/typings';
+import { Beer, BeerSimplified, State, BeerSimplifiedI, SortFunction, QueryParams, CachedPage } from '@/types/typings';
 import { API_ADDRESS, tableHeaders } from './const';
 import axios from 'axios';
 import { compareFunction, getUrlAddress, getErrorMessage, getQueryString } from '@/utils';
+import { isArray } from 'lodash';
 
 const state: State = {
-  beers: [],
-  loadingStatus: false,
-  cachedBeers: {},
   areAllDataFetched: false,
+  beers: [],
+  cachedBeers: {},
+  loadingStatus: false,
 };
 
 export default function storeCreator(): Store<State> {
@@ -42,8 +34,9 @@ export default function storeCreator(): Store<State> {
       addMoreBeers(state, payload: Beer[]): void {
         state.beers = [...state.beers, ...payload];
       },
-      setLoadingStatus(state, newStatus: boolean): void {
-        state.loadingStatus = newStatus;
+      cacheBeerPage(state, payload: CachedPage): void {
+        const { keyQuery, page } = payload;
+        state.cachedBeers[keyQuery] = page;
       },
       setDataFetchingCompletion(state): void {
         state.areAllDataFetched = true;
@@ -51,62 +44,52 @@ export default function storeCreator(): Store<State> {
       setInitialDataFetchingState(state): void {
         state.areAllDataFetched = false;
       },
+      setLoadingStatus(state, newStatus: boolean): void {
+        state.loadingStatus = newStatus;
+      },
     },
     actions: {
-      addCachedPage(context, params: CachePageParam): void {
-        const { mutation, cachedPage } = params;
-        context.commit(mutation, cachedPage);
+      async checkIfNextPageAvailable(context, queryParams: QueryParams): Promise<boolean> {
+        const keyQuery: string = getQueryString(queryParams);
+        const isPageCached: boolean = !!state.cachedBeers[keyQuery];
+        let isPageAvailable: boolean = false;
+        if (isPageCached) {
+          return true;
+        }
+        if (state.areAllDataFetched) {
+          return false;
+        }
+        const result: Beer[] | Error = await this.dispatch('fetchBeerData', queryParams);
+        if (isArray(result) && result.length) {
+          isPageAvailable = true;
+          const cachedPage: CachedPage = {
+            page: result,
+            keyQuery,
+          };
+          context.commit('cacheBeerPage', cachedPage);
+        }
+        return isPageAvailable;
       },
-      async fetchBeerData(context, params: FetchBeerDataParam) {
-        const { mutation, queryParams, keyQuery } = params;
+      async fetchBeerData(context, queryParams: QueryParams): Promise<Beer[] | Error> {
         const url: string = getUrlAddress(API_ADDRESS, queryParams);
         try {
           const res = await axios.get(url);
           if (res.data.length) {
-            state.cachedBeers[keyQuery] = res.data;
-            context.commit(mutation, res.data);
+            return res.data;
           } else {
             context.commit('setDataFetchingCompletion');
+            return [];
           }
         } catch (e) {
           throw getErrorMessage(e);
         }
-      },
-      async loadSinglePage(context, queryParams: QueryParams): Promise<void> {
-        const keyQuery: string = getQueryString(queryParams);
-        const cachedPage: Beer[] = state.cachedBeers[keyQuery];
-        context.commit('setLoadingStatus', true);
-        if (cachedPage) {
-          const cachedPageParam: CachePageParam = {
-            mutation: 'addSinglePage',
-            cachedPage,
-          };
-          this.dispatch('addCachedPage', cachedPageParam);
-          context.commit('setLoadingStatus', false);
-          return;
-        }
-        if (state.areAllDataFetched) {
-          context.commit('setLoadingStatus', false);
-          return;
-        }
-        const fetchBeerDataParam: FetchBeerDataParam = {
-          mutation: 'addSinglePage',
-          queryParams,
-          keyQuery,
-        };
-        await this.dispatch('fetchBeerData', fetchBeerDataParam);
-        context.commit('setLoadingStatus', false);
       },
       async loadMoreBeers(context, queryParams: QueryParams): Promise<void> {
         const keyQuery: string = getQueryString(queryParams);
         const cachedPage: Beer[] = state.cachedBeers[keyQuery];
         context.commit('setLoadingStatus', true);
         if (cachedPage) {
-          const cachedPageParam: CachePageParam = {
-            mutation: 'addMoreBeers',
-            cachedPage,
-          };
-          this.dispatch('addCachedPage', cachedPageParam);
+          context.commit('addMoreBeers', cachedPage);
           context.commit('setLoadingStatus', false);
           return;
         }
@@ -114,37 +97,40 @@ export default function storeCreator(): Store<State> {
           context.commit('setLoadingStatus', false);
           return;
         }
-        const fetchBeerDataParam: FetchBeerDataParam = {
-          mutation: 'addMoreBeers',
-          queryParams,
-          keyQuery,
-        };
-        await this.dispatch('fetchBeerData', fetchBeerDataParam);
+        const result: Beer[] | Error = await this.dispatch('fetchBeerData', queryParams);
+        if (isArray(result) && result.length) {
+          const cachedPage: CachedPage = {
+            page: result,
+            keyQuery,
+          };
+          context.commit('cacheBeerPage', cachedPage);
+          context.commit('addMoreBeers', result);
+        }
         context.commit('setLoadingStatus', false);
       },
-      async checkIfNextPageAvailable(context, queryParams: QueryParams): Promise<boolean> {
-        const url: string = getUrlAddress(API_ADDRESS, queryParams);
+      async loadSinglePage(context, queryParams: QueryParams): Promise<void> {
         const keyQuery: string = getQueryString(queryParams);
-        const cachedPage: Beer[] = state.cachedBeers[keyQuery];
-        let isPageAvailable: boolean = false;
+        const cachedPage: Beer[] | undefined = state.cachedBeers[keyQuery];
+        context.commit('setLoadingStatus', true);
         if (cachedPage) {
-          return true;
+          context.commit('addSinglePage', cachedPage);
+          context.commit('setLoadingStatus', false);
+          return;
         }
         if (state.areAllDataFetched) {
-          return false;
+          context.commit('setLoadingStatus', false);
+          return;
         }
-        try {
-          const res = await axios.get(url);
-          if (res.data.length) {
-            isPageAvailable = true;
-            state.cachedBeers[keyQuery] = res.data;
-          } else {
-            context.commit('setDataFetchingCompletion');
-          }
-        } catch (e) {
-          throw getErrorMessage(e);
+        const result: Beer[] | Error = await this.dispatch('fetchBeerData', queryParams);
+        if (isArray(result) && result.length) {
+          const cachedPage: CachedPage = {
+            page: result,
+            keyQuery,
+          };
+          context.commit('cacheBeerPage', cachedPage);
+          context.commit('addSinglePage', result);
         }
-        return isPageAvailable;
+        context.commit('setLoadingStatus', false);
       },
     },
   });
