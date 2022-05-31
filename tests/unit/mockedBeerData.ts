@@ -1,4 +1,6 @@
-import { BeerSimplified } from '@/types/typings';
+import { BeerSimplified, SortDirection, TableHeaderKey } from '@/types/typings';
+
+//MOCKED DATA
 
 export const simplifiedBeers: BeerSimplified[] = [
   {
@@ -20,3 +22,23 @@ export const simplifiedBeers: BeerSimplified[] = [
     ph: 4.4,
   },
 ];
+
+export const tablePropsWithSortOn: BeerTableProps = {
+  beerData: simplifiedBeers,
+  sortDirection: SortDirection.ASC,
+  sortBy: 'abv',
+};
+
+export const tablePropsWithSortOff: BeerTableProps = {
+  beerData: simplifiedBeers,
+  sortDirection: SortDirection.NONE,
+  sortBy: null,
+};
+
+//TEST PURPOSE TYPES
+
+export type BeerTableProps = {
+  beerData: BeerSimplified[];
+  sortBy: TableHeaderKey | null;
+  sortDirection: SortDirection;
+};

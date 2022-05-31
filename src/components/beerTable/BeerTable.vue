@@ -7,6 +7,7 @@
           <button
             v-if="isSortButtonVisible(header)"
             :class="isSortClicked(SortDirection.ASC, header.key) ? style.sortClicked : null"
+            :data-test="`asc-sort-button-${header.key}`"
             @click="onSortClick(SortDirection.ASC, header.key)"
           >
             ASC
@@ -14,6 +15,7 @@
           <button
             v-if="isSortButtonVisible(header)"
             :class="isSortClicked(SortDirection.DESC, header.key) ? style.sortClicked : null"
+            :data-test="`desc-sort-button-${header.key}`"
             @click="onSortClick(SortDirection.DESC, header.key)"
           >
             DESC
