@@ -30,7 +30,7 @@ class Props {
     await this.setLoadMoreButtonState();
   },
 })
-export default class LoadMore extends Vue.with(Props) {
+export default class BeerTableLoadMore extends Vue.with(Props) {
   checkIfNextPageAvailable!: (query: QueryParams) => Promise<boolean>;
 
   debouncedOnLoadMore: DebouncedFunc<() => Promise<void>> = debounce(this.onLoadMore, 300);

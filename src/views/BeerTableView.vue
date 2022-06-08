@@ -19,8 +19,8 @@
     @next-page="onNextPageClick"
     @prev-page="onPrevPageClick"
   />
-  <loader v-if="isLoaderVisible" />
-  <no-data v-if="isNoDataVisible" data-test="no-data">No beers found</no-data>
+  <beer-table-loader v-if="isLoaderVisible" />
+  <the-no-data v-if="isNoDataVisible" data-test="no-data">No beers found</the-no-data>
 </template>
 
 <script lang="ts">
@@ -37,14 +37,14 @@ import {
 } from '@/types/typings';
 import debounce from 'lodash/debounce';
 import { DebouncedFunc } from 'lodash';
-import BeerButton from '@/components/shared/BeerButton.vue';
-import BeerTableNavigation from '@/components/beerTable/BeerTableNavigation.vue';
-import BeerTable from '@/components/beerTable/BeerTable.vue';
-import InfiniteScroll from '@/components/beerTable/InfiniteScroll.vue';
-import Loader from '@/components/shared/Loader.vue';
-import LoadMore from '@/components/beerTable/LoadMore.vue';
-import NoData from '@/components/shared/NoData.vue';
-import Pagination from '@/components/beerTable/Pagination.vue';
+import BeerButton from '@/components/BeerButton.vue';
+import BeerTable from '@/components/BeerTable.vue';
+import BeerTableInfiniteScroll from '@/components/BeerTableInfiniteScroll.vue';
+import BeerTableLoader from '@/components/BeerTableLoader.vue';
+import BeerTableLoadMore from '@/components/BeerTableLoadMore.vue';
+import BeerTableNavigation from '@/components/BeerTableNavigation.vue';
+import BeerTablePagination from '@/components/BeerTablePagination.vue';
+import TheNoData from '@/components/TheNoData.vue';
 
 @Options({
   methods: {
@@ -56,13 +56,13 @@ import Pagination from '@/components/beerTable/Pagination.vue';
   },
   components: {
     BeerButton,
-    BeerTableNavigation,
     BeerTable,
-    InfiniteScroll,
-    Loader,
-    LoadMore,
-    NoData,
-    Pagination,
+    BeerTableInfiniteScroll,
+    BeerTableLoader,
+    BeerTableLoadMore,
+    BeerTableNavigation,
+    BeerTablePagination,
+    TheNoData,
   },
 })
 export default class BeerTableView extends Vue {

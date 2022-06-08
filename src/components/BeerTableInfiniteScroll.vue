@@ -34,7 +34,7 @@ class Props {
     window.removeEventListener('scroll', this.onScroll);
   },
 })
-export default class InfinityScroll extends Vue.with(Props) {
+export default class BeerTableInfiniteScroll extends Vue.with(Props) {
   getLoadingStatus!: boolean;
   debouncedOnLoadMore: DebouncedFunc<() => Promise<void>> = debounce(this.onLoadMore, 300);
   pageNumber: number = 1;

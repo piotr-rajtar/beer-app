@@ -4,7 +4,7 @@
 import { Options, Vue } from 'vue-class-component';
 
 @Options({})
-export default class Loader extends Vue {}
+export default class BeerTableLoader extends Vue {}
 </script>
 
 <style scoped lang="scss" module="style">

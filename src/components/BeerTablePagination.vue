@@ -37,7 +37,7 @@ class Props {
     await this.setPaginationButtonState();
   },
 })
-export default class Pagination extends Vue.with(Props) {
+export default class BeerTablePagination extends Vue.with(Props) {
   checkIfNextPageAvailable!: (query: QueryParams) => Promise<boolean>;
 
   debouncedOnPrevClick: DebouncedFunc<() => void> = debounce(this.onPrevClick, 300);

@@ -111,9 +111,9 @@ export type SortFunction = (sortDirection: SortDirection, sortBy: SortBy) => Bee
 
 //LOADING COMPONENTS TYPES
 export enum DataLoaderComponent {
-  LOAD_MORE = 'LoadMore',
-  PAGINATION = 'Pagination',
-  INFINITE_SCROLL = 'InfiniteScroll',
+  LOAD_MORE = 'BeerTableLoadMore',
+  PAGINATION = 'BeerTablePagination',
+  INFINITE_SCROLL = 'BeerTableInfiniteScroll',
 }
 
 export enum PaginationButtonState {
