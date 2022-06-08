@@ -29,9 +29,7 @@ export const getUrlAddress = (apiAddress: string, queryParams: QueryParams): str
   return `${apiAddress}?${queryString}`;
 };
 
-export const getQueryString = (queryParams: QueryParams): string => {
-  const queryString: string = (Object.keys(queryParams) as Array<keyof QueryParams>)
+export const getQueryString = (queryParams: QueryParams): string =>
+  (Object.keys(queryParams) as Array<keyof QueryParams>)
     .map((queryParamKey) => `${queryParamKey}=${queryParams[queryParamKey]}`)
     .join();
-  return queryString;
-};
