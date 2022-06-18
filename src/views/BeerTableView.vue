@@ -2,14 +2,7 @@
   <h1>Click to fetch data</h1>
   <beer-button @click="debouncedFetchBeers()">Let's brew!</beer-button>
   <beer-table-navigation v-if="isTableVisible" @change="onNavChange" />
-  <beer-table
-    v-if="isTableVisible"
-    id="beerTable"
-    :beer-data="beersData"
-    :sort-by="sortBy"
-    :sort-direction="sortDirection"
-    @sort="onSortClick"
-  />
+  <beer-table v-if="isTableVisible" id="beerTable" :beer-data="beersData" :sort-by="sortBy" @sort="onSortClick" />
   <component
     v-if="isTableVisible"
     :active-page="page"
@@ -104,10 +97,8 @@ export default class BeerTableView extends Vue {
   }
 
   onSortClick(event: SortEventData): void {
-    const shouldBeApplied: boolean = this.sortBy !== event.sortBy || this.sortDirection !== event.sortDirection;
-
-    this.sortBy = shouldBeApplied ? event.sortBy : null;
-    this.sortDirection = shouldBeApplied ? event.sortDirection : SortDirection.NONE;
+    this.sortBy = event.sortDirection !== SortDirection.NONE ? event.sortBy : null;
+    this.sortDirection = event.sortDirection;
   }
 
   setTableInitialState(): void {
