@@ -5,8 +5,7 @@
 <script lang="ts">
 import { Options, prop, Vue } from 'vue-class-component';
 import { mapState } from 'vuex';
-import debounce from 'lodash/debounce';
-import { DebouncedFunc } from 'lodash';
+import { DebouncedFunc, throttle } from 'lodash';
 
 class Props {
   activePage = prop({
@@ -36,7 +35,7 @@ class Props {
 })
 export default class BeerTableInfiniteScroll extends Vue.with(Props) {
   getLoadingStatus!: boolean;
-  debouncedOnLoadMore: DebouncedFunc<() => Promise<void>> = debounce(this.onLoadMore, 300);
+  throttledOnLoadMore: DebouncedFunc<() => Promise<void>> = throttle(this.onLoadMore, 300);
   pageNumber: number = 1;
 
   get numberOfInitialFetchNeeded(): number {
@@ -70,9 +69,11 @@ export default class BeerTableInfiniteScroll extends Vue.with(Props) {
   }
 
   async onScroll(): Promise<void> {
-    const isBottomOfWindowReached = window.innerHeight + window.scrollY >= document.body.offsetHeight;
+    //75% of the document body height
+    const documentFetchPoint = document.body.offsetHeight * 0.75;
+    const isBottomOfWindowReached = window.innerHeight + window.scrollY >= documentFetchPoint;
     if (isBottomOfWindowReached && !this.$store.state.loadingStatus) {
-      this.debouncedOnLoadMore();
+      this.throttledOnLoadMore();
     }
   }
 }
