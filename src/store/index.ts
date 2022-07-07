@@ -1,8 +1,8 @@
 import { createStore, Store } from 'vuex';
 import { Beer, BeerSimplified, State, BeerSimplifiedI, SortFunction, QueryParams, CachedPage } from '@/types/typings';
-import { API_ADDRESS, tableHeaders } from './const';
+import { apiAddress, tableHeaders } from './const';
 import axios from 'axios';
-import { compareFunction, getUrlAddress, getErrorMessage, getQueryString } from '@/utils';
+import { compare, getUrlAddress, getErrorMessage, getQueryString } from '@/utils';
 import { isArray } from 'lodash';
 
 const state: State = {
@@ -24,7 +24,7 @@ export default function storeCreator(): Store<State> {
         });
       },
       getSortedBeersData(_state, getters): SortFunction {
-        return (sortDirection, sortBy) => getters.getSimplifiedBeersData.sort(compareFunction(sortDirection, sortBy));
+        return (sortDirection, sortBy) => getters.getSimplifiedBeersData.sort(compare(sortDirection, sortBy));
       },
     },
     mutations: {
@@ -71,7 +71,7 @@ export default function storeCreator(): Store<State> {
         return isPageAvailable;
       },
       async fetchBeerData(context, queryParams: QueryParams): Promise<Beer[] | Error> {
-        const url: string = getUrlAddress(API_ADDRESS, queryParams);
+        const url: string = getUrlAddress(apiAddress, queryParams);
         try {
           const res = await axios.get(url);
           if (res.data.length) {
