@@ -70,6 +70,7 @@ export default function storeCreator(): Store<State> {
         }
         return isPageAvailable;
       },
+
       async fetchBeerData(context, queryParams: QueryParams): Promise<Beer[] | Error> {
         const url: string = getUrlAddress(apiAddress, queryParams);
         try {
@@ -84,6 +85,7 @@ export default function storeCreator(): Store<State> {
           throw getErrorMessage(e);
         }
       },
+
       async loadMoreBeers(context, queryParams: QueryParams): Promise<void> {
         const keyQuery: string = getQueryString(queryParams);
         const cachedPage: Beer[] = state.cachedBeers[keyQuery];
@@ -108,6 +110,7 @@ export default function storeCreator(): Store<State> {
         }
         context.commit('setLoadingStatus', false);
       },
+
       async loadSinglePage(context, queryParams: QueryParams): Promise<void> {
         const keyQuery: string = getQueryString(queryParams);
         const cachedPage: Beer[] | undefined = state.cachedBeers[keyQuery];
