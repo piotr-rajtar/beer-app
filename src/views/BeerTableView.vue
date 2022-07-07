@@ -28,8 +28,7 @@ import {
   SortBy,
   QueryParams,
 } from '@/types/typings';
-import debounce from 'lodash/debounce';
-import { DebouncedFunc } from 'lodash';
+import { debounce, DebouncedFunc } from 'lodash';
 import BeerButton from '@/components/BeerButton.vue';
 import BeerTable from '@/components/BeerTable.vue';
 import BeerTableInfiniteScroll from '@/components/BeerTableInfiniteScroll.vue';

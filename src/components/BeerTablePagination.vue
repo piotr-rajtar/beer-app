@@ -10,8 +10,7 @@
 import { Options, prop, Vue } from 'vue-class-component';
 import { mapActions } from 'vuex';
 import { PaginationButtonState, QueryParams } from '@/types/typings';
-import debounce from 'lodash/debounce';
-import { DebouncedFunc } from 'lodash';
+import { debounce, DebouncedFunc } from 'lodash';
 
 class Props {
   activePage = prop({
