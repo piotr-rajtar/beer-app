@@ -3,7 +3,7 @@ import { Beer, BeerSimplified, State, BeerSimplifiedI, SortFunction, QueryParams
 import { apiAddress, tableHeaders } from './const';
 import axios from 'axios';
 import { compare, getUrlAddress, getErrorMessage, getQueryString } from '@/utils';
-import { isArray } from 'lodash';
+import { isArray, cloneDeep } from 'lodash';
 
 const state: State = {
   areAllDataFetched: false,
@@ -24,7 +24,8 @@ export default function storeCreator(): Store<State> {
         });
       },
       getSortedBeersData(_state, getters): SortFunction {
-        return (sortDirection, sortBy) => getters.getSimplifiedBeersData.sort(compare(sortDirection, sortBy));
+        return (sortDirection, sortBy) =>
+          cloneDeep(getters.getSimplifiedBeersData).sort(compare(sortDirection, sortBy));
       },
     },
     mutations: {
@@ -88,7 +89,7 @@ export default function storeCreator(): Store<State> {
 
       async loadMoreBeers(context, queryParams: QueryParams): Promise<void> {
         const keyQuery: string = getQueryString(queryParams);
-        const cachedPage: Beer[] = state.cachedBeers[keyQuery];
+        const cachedPage: Beer[] | undefined = state.cachedBeers[keyQuery];
         context.commit('setLoadingStatus', true);
         if (cachedPage) {
           context.commit('addMoreBeers', cachedPage);
