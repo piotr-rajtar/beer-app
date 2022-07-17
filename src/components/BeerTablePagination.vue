@@ -26,7 +26,10 @@ class Props {
   },
   watch: {
     activePage: function onActivePageChange(newPageNumber: number): void {
-      this.onActivePageChange(newPageNumber);
+      if (newPageNumber !== 1) {
+        return;
+      }
+      this.pageNumber = 1;
     },
     pageNumber: async function onPageChange(newPage, oldPage) {
       await this.onPageChange(newPage, oldPage);
@@ -44,12 +47,6 @@ export default class BeerTablePagination extends Vue.with(Props) {
   isNextButtonDisabled: boolean = false;
   isPrevButtonDisabled: boolean = true;
   pageNumber: number = 1;
-
-  onActivePageChange(newActivePageNumber: number): void {
-    if (newActivePageNumber === 1) {
-      this.pageNumber = 1;
-    }
-  }
 
   onNextClick(): void {
     this.pageNumber++;

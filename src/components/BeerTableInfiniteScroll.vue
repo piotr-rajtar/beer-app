@@ -19,14 +19,22 @@ class Props {
   emits: ['loadMore'],
   watch: {
     activePage: async function onActivePageChange(newPageNumber: number): Promise<void> {
-      await this.onActivePageChange(newPageNumber);
+      if (newPageNumber !== 1) {
+        return;
+      }
+      this.pageNumber = 1;
+      await this.fetchDataInitially();
+      window.addEventListener('scroll', this.onScroll);
     },
-    areAllDataFetched: function onDataFetchCompletion(newStatus: boolean): void {
-      this.onDataFetchCompletion(newStatus);
+    areAllDataFetched: function onDataFetchCompletion(areAllDataFetched: boolean): void {
+      if (!areAllDataFetched) {
+        return;
+      }
+      window.removeEventListener('scroll', this.onScroll);
     },
   },
   mounted: async function onMount(): Promise<void> {
-    await this.initialFetcher();
+    await this.fetchDataInitially();
     window.addEventListener('scroll', this.onScroll);
   },
   unmounted: function onUnmount(): void {
@@ -43,10 +51,14 @@ export default class BeerTableInfiniteScroll extends Vue.with(Props) {
     return Math.floor((window.innerHeight - beerTable.top) / beerTable.height);
   }
 
-  onDataFetchCompletion(newStatus: boolean): void {
-    if (newStatus) {
-      window.removeEventListener('scroll', this.onScroll);
-    }
+  isDocumentStartFetchPointReached(): boolean {
+    const documentHeightPercentage = 0.9;
+    const documentFetchPoint = document.body.offsetHeight * documentHeightPercentage;
+    return window.innerHeight + window.scrollY >= documentFetchPoint;
+  }
+
+  isFetchNeededAndDataAreLoaded(): boolean {
+    return this.isDocumentStartFetchPointReached() && !this.$store.state.loadingStatus;
   }
 
   onLoadMore(): void {
@@ -54,25 +66,14 @@ export default class BeerTableInfiniteScroll extends Vue.with(Props) {
     this.$emit('loadMore');
   }
 
-  async initialFetcher(): Promise<void> {
+  async fetchDataInitially(): Promise<void> {
     for (let counter = 0; counter < this.numberOfInitialFetchNeeded; counter++) {
       await this.onLoadMore();
     }
   }
 
-  async onActivePageChange(newActivePageNumber: number): Promise<void> {
-    if (newActivePageNumber === 1) {
-      this.pageNumber = 1;
-      await this.initialFetcher();
-      window.addEventListener('scroll', this.onScroll);
-    }
-  }
-
   async onScroll(): Promise<void> {
-    //75% of the document body height
-    const documentFetchPoint = document.body.offsetHeight * 0.75;
-    const isBottomOfWindowReached = window.innerHeight + window.scrollY >= documentFetchPoint;
-    if (isBottomOfWindowReached && !this.$store.state.loadingStatus) {
+    if (this.isFetchNeededAndDataAreLoaded()) {
       this.throttledOnLoadMore();
     }
   }

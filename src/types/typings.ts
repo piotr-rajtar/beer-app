@@ -110,7 +110,7 @@ export type SortBy = keyof BeerSimplified;
 export type SortFunction = (sortDirection: SortDirection, sortBy: SortBy) => BeerSimplified[];
 
 //LOADING COMPONENTS TYPES
-export enum DataLoaderComponent {
+export enum DataLoaderType {
   LOAD_MORE = 'BeerTableLoadMore',
   PAGINATION = 'BeerTablePagination',
   INFINITE_SCROLL = 'BeerTableInfiniteScroll',

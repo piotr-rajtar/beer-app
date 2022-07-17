@@ -36,13 +36,14 @@ export default class BeerTableHeaderCell extends Vue.with(Props) {
   }
 
   onSortClick(sortDirection: SortDirection): void {
-    if (this.header.key !== 'more') {
-      const eventData: SortEventData = {
-        sortDirection: sortDirection,
-        sortBy: this.header.key,
-      };
-      this.$emit('sort', eventData);
+    if (this.header.key === 'more') {
+      return;
     }
+    const eventData: SortEventData = {
+      sortDirection: sortDirection,
+      sortBy: this.header.key,
+    };
+    this.$emit('sort', eventData);
   }
 }
 </script>

@@ -5,7 +5,7 @@
       <input
         id="loadMore"
         v-model="activeDataLoader"
-        :value="DataLoaderComponent.LOAD_MORE"
+        :value="DataLoaderType.LOAD_MORE"
         type="radio"
         @change="onChange"
       />
@@ -15,7 +15,7 @@
       <input
         id="pagination"
         v-model="activeDataLoader"
-        :value="DataLoaderComponent.PAGINATION"
+        :value="DataLoaderType.PAGINATION"
         type="radio"
         @change="onChange"
       />
@@ -25,7 +25,7 @@
       <input
         id="infiniteScroll"
         v-model="activeDataLoader"
-        :value="DataLoaderComponent.INFINITE_SCROLL"
+        :value="DataLoaderType.INFINITE_SCROLL"
         type="radio"
         @change="onChange"
       />
@@ -36,14 +36,14 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { DataLoaderComponent } from '@/types/typings';
+import { DataLoaderType } from '@/types/typings';
 
 @Options({
   emits: ['change'],
 })
 export default class BeerTableNavigation extends Vue {
-  DataLoaderComponent = DataLoaderComponent;
-  activeDataLoader: DataLoaderComponent = DataLoaderComponent.LOAD_MORE;
+  DataLoaderType = DataLoaderType;
+  activeDataLoader: DataLoaderType = DataLoaderType.LOAD_MORE;
 
   onChange(): void {
     this.$emit('change', this.activeDataLoader);

@@ -22,7 +22,11 @@ class Props {
   },
   watch: {
     activePage: async function onActivePageChange(newPageNumber: number): Promise<void> {
-      await this.onActivePageChange(newPageNumber);
+      if (newPageNumber !== 1) {
+        return;
+      }
+      this.pageNumber = 1;
+      await this.setLoadMoreButtonState();
     },
   },
   mounted: async function onMount(): Promise<void> {
@@ -35,13 +39,6 @@ export default class BeerTableLoadMore extends Vue.with(Props) {
   debouncedOnLoadMore: DebouncedFunc<() => Promise<void>> = debounce(this.onLoadMore, 300);
   isLoadMoreButtonDisabled: boolean = true;
   pageNumber: number = 1;
-
-  async onActivePageChange(newActivePageNumber: number): Promise<void> {
-    if (newActivePageNumber === 1) {
-      this.pageNumber = 1;
-      await this.setLoadMoreButtonState();
-    }
-  }
 
   async onLoadMore(): Promise<void> {
     this.pageNumber++;

@@ -24,7 +24,10 @@ class Props {
   emits: ['sort'],
   watch: {
     sortBy: function onSortByChange(newColumnToSort: SortBy): void {
-      this.onSortByChange(newColumnToSort);
+      if (newColumnToSort === this.columnHeader) {
+        return;
+      }
+      this.sortButtonDirection = SortDirection.NONE;
     },
   },
 })
@@ -55,12 +58,6 @@ export default class BeerTableSortButton extends Vue.with(Props) {
       case SortDirection.NONE:
       default:
         return SortDirection.ASC;
-    }
-  }
-
-  onSortByChange(newColumnToSort: SortBy): void {
-    if (newColumnToSort !== this.columnHeader) {
-      this.sortButtonDirection = SortDirection.NONE;
     }
   }
 
