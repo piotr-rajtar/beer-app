@@ -21,9 +21,9 @@ import { Options, Vue } from 'vue-class-component';
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import {
   BeerSimplified,
-  DataLoaderComponent,
+  DataLoaderType,
   SortDirection,
-  SortEventData,
+  SortOptions,
   SortFunction,
   SortBy,
   QueryParams,
@@ -40,11 +40,16 @@ import TheNoData from '@/components/TheNoData.vue';
 
 @Options({
   methods: {
-    ...mapActions(['loadSinglePage', 'loadMoreBeers']),
+    ...mapActions(['loadSinglePage', 'loadMoreBeers', 'loadMorePaginedBeers']),
     ...mapMutations(['setInitialDataFetchingState']),
   },
   computed: {
-    ...mapGetters(['getSimplifiedBeersData', 'getSortedBeersData']),
+    ...mapGetters([
+      'getSimplifiedBeersData',
+      'getSortedBeersData',
+      'getPaginatedSimplifiedBeersData',
+      'getPaginatedSortedBeersData',
+    ]),
   },
   components: {
     BeerButton,
@@ -60,21 +65,28 @@ import TheNoData from '@/components/TheNoData.vue';
 export default class BeerTableView extends Vue {
   getSimplifiedBeersData!: BeerSimplified[];
   getSortedBeersData!: SortFunction;
+  getPaginatedSimplifiedBeersData!: (pageNumber: number) => BeerSimplified[];
+  getPaginatedSortedBeersData!: (sortOptions: SortOptions, page: number) => BeerSimplified[];
   loadMoreBeers!: (query: QueryParams) => Promise<void>;
+  loadMorePaginedBeers!: (query: QueryParams) => Promise<void>;
   loadSinglePage!: (query: QueryParams) => Promise<void>;
   setInitialDataFetchingState!: () => void;
 
   debouncedFetchBeers: DebouncedFunc<() => void> = debounce(this.fetchBeers, 300);
-  navigationType: DataLoaderComponent = DataLoaderComponent.LOAD_MORE;
+  navigationType: DataLoaderType = DataLoaderType.LOAD_MORE;
   page: number = 1;
   sortBy: SortBy | null = null;
   sortDirection: SortDirection = SortDirection.NONE;
   wasFetchButtonEverClicked: boolean = false;
 
   get beersData(): BeerSimplified[] {
-    return this.sortDirection === SortDirection.NONE
-      ? this.getSimplifiedBeersData
-      : this.getSortedBeersData(this.sortDirection, this.sortBy as SortBy);
+    return this.sortDirection === SortDirection.NONE ? this.beersDataInInitialOrder : this.sortedBeersData;
+  }
+
+  get beersDataInInitialOrder(): BeerSimplified[] {
+    return this.navigationType === DataLoaderType.PAGINATION
+      ? this.getPaginatedSimplifiedBeersData(this.page)
+      : this.getSimplifiedBeersData;
   }
 
   get isLoaderVisible(): boolean {
@@ -95,9 +107,25 @@ export default class BeerTableView extends Vue {
     };
   }
 
-  onSortClick(event: SortEventData): void {
-    this.sortBy = event.sortDirection !== SortDirection.NONE ? event.sortBy : null;
-    this.sortDirection = event.sortDirection;
+  get sortedBeersData(): BeerSimplified[] {
+    return this.navigationType === DataLoaderType.PAGINATION
+      ? this.getPaginatedSortedBeersData(this.sortOptions, this.page)
+      : this.getSortedBeersData(this.sortOptions);
+  }
+
+  get sortOptions(): SortOptions {
+    return {
+      sortBy: this.sortBy,
+      sortDirection: this.sortDirection,
+    };
+  }
+
+  onSortClick(sortOptions: SortOptions): void {
+    if (this.navigationType === DataLoaderType.PAGINATION) {
+      this.page = 1;
+    }
+    this.sortBy = sortOptions.sortDirection !== SortDirection.NONE ? sortOptions.sortBy : null;
+    this.sortDirection = sortOptions.sortDirection;
   }
 
   setTableInitialState(): void {
@@ -120,7 +148,7 @@ export default class BeerTableView extends Vue {
     await this.loadMoreBeers(this.queryObject);
   }
 
-  async onNavChange(navigationType: DataLoaderComponent): Promise<void> {
+  async onNavChange(navigationType: DataLoaderType): Promise<void> {
     this.navigationType = navigationType;
     this.setTableInitialState();
     await this.loadSinglePage(this.queryObject);
@@ -128,12 +156,12 @@ export default class BeerTableView extends Vue {
 
   async onNextPageClick(): Promise<void> {
     this.page++;
-    await this.loadSinglePage(this.queryObject);
+    await this.loadMorePaginedBeers(this.queryObject);
   }
 
   async onPrevPageClick(): Promise<void> {
     this.page--;
-    await this.loadSinglePage(this.queryObject);
+    await this.loadMorePaginedBeers(this.queryObject);
   }
 }
 </script>

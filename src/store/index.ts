@@ -1,8 +1,18 @@
 import { createStore, Store } from 'vuex';
-import { Beer, BeerSimplified, State, BeerSimplifiedI, SortFunction, QueryParams, CachedPage } from '@/types/typings';
+import {
+  Beer,
+  BeerSimplified,
+  BeerSimplifiedI,
+  CachedPage,
+  LoadBeerItemPayload,
+  QueryParams,
+  SortFunction,
+  SortOptions,
+  State,
+} from '@/types/typings';
 import { apiAddress, tableHeaders } from './const';
 import axios from 'axios';
-import { compare, getUrlAddress, getErrorMessage, getQueryString } from '@/utils';
+import { compare, getErrorMessage, getQueryString, getStartAndEndIndexOfPageItems, getUrlAddress } from '@/utils';
 import { isArray, cloneDeep } from 'lodash';
 
 const state: State = {
@@ -23,28 +33,54 @@ export default function storeCreator(): Store<State> {
           return simplifiedBeer as BeerSimplified;
         });
       },
+
+      getPaginatedSimplifiedBeersData(_state, getters): (pageNumber: number) => BeerSimplified[] {
+        return (pageNumber) => {
+          const pageIndexes = getStartAndEndIndexOfPageItems(pageNumber);
+          return getters.getSimplifiedBeersData.slice(pageIndexes.startIndex, pageIndexes.endIndex);
+        };
+      },
+
       getSortedBeersData(_state, getters): SortFunction {
-        return (sortDirection, sortBy) =>
-          cloneDeep(getters.getSimplifiedBeersData).sort(compare(sortDirection, sortBy));
+        return (sortOptions) => cloneDeep(getters.getSimplifiedBeersData).sort(compare(sortOptions));
+      },
+
+      getPaginatedSortedBeersData(_state, getters): (sortOptions: SortOptions, page: number) => BeerSimplified[] {
+        return (sortOptions, pageNumber) => {
+          const pageIndexes = getStartAndEndIndexOfPageItems(pageNumber);
+          return cloneDeep(getters.getSimplifiedBeersData)
+            .sort(compare(sortOptions))
+            .slice(pageIndexes.startIndex, pageIndexes.endIndex);
+        };
       },
     },
     mutations: {
-      addSinglePage(state, payload: Beer[]): void {
-        state.beers = [...payload];
-      },
       addMoreBeers(state, payload: Beer[]): void {
         state.beers = [...state.beers, ...payload];
       },
+
+      addMorePaginedBeers(state, payload: Beer[]): void {
+        const updatedBeersData = payload.filter((beer) => !state.beers.some((storedBeer) => storedBeer.id === beer.id));
+        state.beers = [...state.beers, ...updatedBeersData];
+      },
+
+      addSinglePage(state, payload: Beer[]): void {
+        state.beers = [...payload];
+      },
+
       cacheBeerPage(state, payload: CachedPage): void {
         const { keyQuery, page } = payload;
         state.cachedBeers[keyQuery] = page;
       },
+
       setDataFetchingCompletion(state): void {
         state.areAllDataFetched = true;
       },
+
       setInitialDataFetchingState(state): void {
         state.areAllDataFetched = false;
       },
+
       setLoadingStatus(state, newStatus: boolean): void {
         state.loadingStatus = newStatus;
       },
@@ -63,11 +99,11 @@ export default function storeCreator(): Store<State> {
         const result: Beer[] | Error = await this.dispatch('fetchBeerData', queryParams);
         if (isArray(result) && result.length) {
           isPageAvailable = true;
-          const cachedPage: CachedPage = {
+          const pageToCache: CachedPage = {
             page: result,
             keyQuery,
           };
-          context.commit('cacheBeerPage', cachedPage);
+          context.commit('cacheBeerPage', pageToCache);
         }
         return isPageAvailable;
       },
@@ -87,12 +123,12 @@ export default function storeCreator(): Store<State> {
         }
       },
 
-      async loadMoreBeers(context, queryParams: QueryParams): Promise<void> {
-        const keyQuery: string = getQueryString(queryParams);
+      async loadBeerItems(context, payload: LoadBeerItemPayload): Promise<void> {
+        const keyQuery: string = getQueryString(payload.queryParams);
         const cachedPage: Beer[] | undefined = state.cachedBeers[keyQuery];
         context.commit('setLoadingStatus', true);
         if (cachedPage) {
-          context.commit('addMoreBeers', cachedPage);
+          context.commit(payload.addBeersMutation, cachedPage);
           context.commit('setLoadingStatus', false);
           return;
         }
@@ -100,41 +136,40 @@ export default function storeCreator(): Store<State> {
           context.commit('setLoadingStatus', false);
           return;
         }
-        const result: Beer[] | Error = await this.dispatch('fetchBeerData', queryParams);
+        const result: Beer[] | Error = await this.dispatch('fetchBeerData', payload.queryParams);
         if (isArray(result) && result.length) {
-          const cachedPage: CachedPage = {
+          const pageToCache: CachedPage = {
             page: result,
             keyQuery,
           };
-          context.commit('cacheBeerPage', cachedPage);
-          context.commit('addMoreBeers', result);
+          context.commit('cacheBeerPage', pageToCache);
+          context.commit(payload.addBeersMutation, result);
         }
         context.commit('setLoadingStatus', false);
       },
 
-      async loadSinglePage(context, queryParams: QueryParams): Promise<void> {
-        const keyQuery: string = getQueryString(queryParams);
-        const cachedPage: Beer[] | undefined = state.cachedBeers[keyQuery];
-        context.commit('setLoadingStatus', true);
-        if (cachedPage) {
-          context.commit('addSinglePage', cachedPage);
-          context.commit('setLoadingStatus', false);
-          return;
-        }
-        if (state.areAllDataFetched) {
-          context.commit('setLoadingStatus', false);
-          return;
-        }
-        const result: Beer[] | Error = await this.dispatch('fetchBeerData', queryParams);
-        if (isArray(result) && result.length) {
-          const cachedPage: CachedPage = {
-            page: result,
-            keyQuery,
-          };
-          context.commit('cacheBeerPage', cachedPage);
-          context.commit('addSinglePage', result);
-        }
-        context.commit('setLoadingStatus', false);
+      async loadMoreBeers(_context, queryParams: QueryParams): Promise<void> {
+        const payload: LoadBeerItemPayload = {
+          queryParams,
+          addBeersMutation: 'addMoreBeers',
+        };
+        await this.dispatch('loadBeerItems', payload);
+      },
+
+      async loadMorePaginedBeers(_context, queryParams: QueryParams): Promise<void> {
+        const payload: LoadBeerItemPayload = {
+          queryParams,
+          addBeersMutation: 'addMorePaginedBeers',
+        };
+        await this.dispatch('loadBeerItems', payload);
+      },
+
+      async loadSinglePage(_context, queryParams: QueryParams): Promise<void> {
+        const payload: LoadBeerItemPayload = {
+          queryParams,
+          addBeersMutation: 'addSinglePage',
+        };
+        await this.dispatch('loadBeerItems', payload);
       },
     },
   });

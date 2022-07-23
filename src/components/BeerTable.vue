@@ -9,7 +9,7 @@
 import { Vue, prop, Options } from 'vue-class-component';
 import BeerTableBody from './BeerTableBody.vue';
 import BeerTableHeader from './BeerTableHeader.vue';
-import { BeerSimplified, SortEventData, SortBy } from '@/types/typings';
+import { BeerSimplified, SortOptions, SortBy } from '@/types/typings';
 
 class Props {
   beerData: BeerSimplified[] = prop({
@@ -25,8 +25,8 @@ class Props {
   emits: ['sort'],
 })
 export default class BeerTable extends Vue.with(Props) {
-  onSortClick(eventData: SortEventData): void {
-    this.$emit('sort', eventData);
+  onSortClick(sortOptions: SortOptions): void {
+    this.$emit('sort', sortOptions);
   }
 }
 </script>

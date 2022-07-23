@@ -15,7 +15,7 @@
 <script lang="ts">
 import { Vue, prop, Options } from 'vue-class-component';
 import BeerTableHeaderCell from './BeerTableHeaderCell.vue';
-import { SortEventData, SortBy, TableHeaders } from '@/types/typings';
+import { SortOptions, SortBy, TableHeaders } from '@/types/typings';
 
 class Props {
   sortBy: SortBy | null = prop({
@@ -65,8 +65,8 @@ export default class BeerTableHeader extends Vue.with(Props) {
     ];
   }
 
-  onSortClick(eventData: SortEventData): void {
-    this.$emit('sort', eventData);
+  onSortClick(sortOptions: SortOptions): void {
+    this.$emit('sort', sortOptions);
   }
 }
 </script>

@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { Vue, prop, Options } from 'vue-class-component';
-import { SortDirection, SortEventData, SortBy, TableHeader } from '@/types/typings';
+import { SortDirection, SortOptions, SortBy, TableHeader } from '@/types/typings';
 import BeerTableSortButton from './BeerTableSortButton.vue';
 
 class Props {
@@ -39,11 +39,11 @@ export default class BeerTableHeaderCell extends Vue.with(Props) {
     if (this.header.key === 'more') {
       return;
     }
-    const eventData: SortEventData = {
+    const sortOptions: SortOptions = {
       sortDirection: sortDirection,
       sortBy: this.header.key,
     };
-    this.$emit('sort', eventData);
+    this.$emit('sort', sortOptions);
   }
 }
 </script>

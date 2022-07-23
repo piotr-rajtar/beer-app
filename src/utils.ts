@@ -1,28 +1,38 @@
-import { BeerSimplified, SortBy, SortDirection, QueryParams } from '@/types/typings';
+import { BeerSimplified, PageIndexes, SortDirection, QueryParams, SortOptions } from '@/types/typings';
 import axios from 'axios';
+
+export const compare = (sortOptions: SortOptions) => {
+  return (a: BeerSimplified, b: BeerSimplified): number => {
+    const arg1 = sortOptions.sortDirection === SortDirection.ASC ? a : b;
+    const arg2 = sortOptions.sortDirection === SortDirection.ASC ? b : a;
+    switch (sortOptions.sortBy) {
+      case 'name':
+        return arg1[sortOptions.sortBy].localeCompare(arg2[sortOptions.sortBy]);
+      case 'first_brewed':
+        return getDateFromString(arg1[sortOptions.sortBy]) - getDateFromString(arg2[sortOptions.sortBy]);
+      default:
+        return (arg1[sortOptions.sortBy!] as number) - (arg2[sortOptions.sortBy!] as number);
+    }
+  };
+};
 
 const getDateFromString = (dateString: string) => {
   const [month, year]: number[] = dateString.split('/').map((item) => +item);
   return new Date(year, month - 1).getTime();
 };
 
-export const compare = (sortDirection: SortDirection, sortBy: SortBy) => {
-  return (a: BeerSimplified, b: BeerSimplified): number => {
-    const arg1 = sortDirection === SortDirection.ASC ? a : b;
-    const arg2 = sortDirection === SortDirection.ASC ? b : a;
-    switch (sortBy) {
-      case 'name':
-        return arg1[sortBy].localeCompare(arg2[sortBy]);
-      case 'first_brewed':
-        return getDateFromString(arg1[sortBy]) - getDateFromString(arg2[sortBy]);
-      default:
-        return (arg1[sortBy] as number) - (arg2[sortBy] as number);
-    }
-  };
-};
-
 export const getErrorMessage = (error: unknown): string =>
   axios.isAxiosError(error) ? `Axios error: ${error.message}` : `Other error: ${new Error().message}`;
+
+export const getStartAndEndIndexOfPageItems = (pageNumber: number): PageIndexes => {
+  const itemsPerPage = 25;
+  const endIndex = itemsPerPage * pageNumber;
+  const startIndex = endIndex - itemsPerPage;
+  return {
+    startIndex,
+    endIndex,
+  };
+};
 
 export const getUrlAddress = (apiAddress: string, queryParams: QueryParams): string => {
   const queryString: string = getQueryString(queryParams);

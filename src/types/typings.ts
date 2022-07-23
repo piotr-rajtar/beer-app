@@ -70,12 +70,25 @@ export interface BeerSimplified {
 }
 
 //STORE TYPES
+type AddBeersMutation = 'addMoreBeers' | 'addMorePaginedBeers' | 'addSinglePage';
+
 type TableKeys = 'id' | 'name' | 'first_brewed' | 'abv' | 'ibu' | 'ebc' | 'ph';
 
 export interface CachedPage {
   keyQuery: string;
   page: Beer[];
 }
+
+export interface LoadBeerItemPayload {
+  queryParams: QueryParams;
+  addBeersMutation: AddBeersMutation;
+}
+
+export interface PageIndexes {
+  startIndex: number;
+  endIndex: number;
+}
+
 export interface State {
   beers: Beer[];
   loadingStatus: boolean;
@@ -100,14 +113,14 @@ export enum SortDirection {
   NONE = 'none',
 }
 
-export interface SortEventData {
+export interface SortOptions {
   sortDirection: SortDirection;
   sortBy: SortBy | null;
 }
 
 export type SortBy = keyof BeerSimplified;
 
-export type SortFunction = (sortDirection: SortDirection, sortBy: SortBy) => BeerSimplified[];
+export type SortFunction = (sortOptions: SortOptions) => BeerSimplified[];
 
 //LOADING COMPONENTS TYPES
 export enum DataLoaderType {
