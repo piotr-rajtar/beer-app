@@ -1,6 +1,6 @@
 <template>
   <h1>Click to fetch data</h1>
-  <beer-button @click="debouncedFetchBeers()">Let's brew!</beer-button>
+  <beer-button @click="debouncedFetchBeers()">Let's start brewing!</beer-button>
   <beer-table-navigation v-if="isTableVisible" @change="onNavChange" />
   <beer-table v-if="isTableVisible" id="beerTable" :beer-data="beersData" :sort-by="sortBy" @sort="onSortClick" />
   <component
