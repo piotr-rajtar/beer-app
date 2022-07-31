@@ -1,7 +1,7 @@
 <template>
   <tbody>
     <tr v-for="beer in beerData" :key="beer.id">
-      <td v-for="key in getBeerObjectKeys(beer)" :class="style.tableCell" :key="`${key}${beer.id}`">
+      <td v-for="key in getBeerObjectKeys(beer)" :class="style.tableCell" :key="`${key}_${beer.id}`">
         {{ getBeerTableCellContent(beer[key]) }}
       </td>
       <td :class="style.tableCell">More</td>
@@ -25,7 +25,7 @@ export default class BeerTableBody extends Vue.with(Props) {
     return Object.keys(beer) as Array<keyof BeerSimplified>;
   }
 
-  getBeerTableCellContent(keyValue: string | number): string | number {
+  getBeerTableCellContent(keyValue: string | number | null): string | number {
     return keyValue || '-';
   }
 }

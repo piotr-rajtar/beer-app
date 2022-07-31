@@ -1,17 +1,13 @@
 <template>
-  <button :class="style.button" :disabled="isDisabled">
+  <button :class="style.button">
     <slot />
   </button>
 </template>
 
 <script lang="ts">
-import { Vue, prop } from 'vue-class-component';
+import { Vue } from 'vue-class-component';
 
-class Props {
-  isDisabled = prop({ type: Boolean });
-}
-
-export default class BeerButton extends Vue.with(Props) {}
+export default class BeerButton extends Vue {}
 </script>
 
 <style scoped lang="scss" module="style">

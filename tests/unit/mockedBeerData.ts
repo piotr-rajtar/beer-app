@@ -21,24 +21,33 @@ export const simplifiedBeers: BeerSimplified[] = [
     ebc: 219,
     ph: 4.4,
   },
+  {
+    id: 24,
+    name: 'The End Of History',
+    first_brewed: '06/2011',
+    abv: 55,
+    ibu: null,
+    ebc: null,
+    ph: 4.4,
+  },
 ];
 
-export const tablePropsWithSortOn: BeerTableProps = {
-  beerData: simplifiedBeers,
-  sortDirection: SortDirection.ASC,
-  sortBy: 'abv',
-};
+// export const tablePropsWithSortOn: BeerTableProps = {
+//   beerData: simplifiedBeers,
+//   sortDirection: SortDirection.ASC,
+//   sortBy: 'abv',
+// };
 
-export const tablePropsWithSortOff: BeerTableProps = {
-  beerData: simplifiedBeers,
-  sortDirection: SortDirection.NONE,
-  sortBy: null,
-};
+// export const tablePropsWithSortOff: BeerTableProps = {
+//   beerData: simplifiedBeers,
+//   sortDirection: SortDirection.NONE,
+//   sortBy: null,
+// };
 
 //TEST PURPOSE TYPES
 
-export type BeerTableProps = {
-  beerData: BeerSimplified[];
-  sortBy: TableHeaderKey | null;
-  sortDirection: SortDirection;
-};
+// export type BeerTableProps = {
+//   beerData: BeerSimplified[];
+//   sortBy: TableHeaderKey | null;
+//   sortDirection: SortDirection;
+// };

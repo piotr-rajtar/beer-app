@@ -63,10 +63,10 @@ export interface BeerSimplified {
   id: number;
   name: string;
   first_brewed: string;
-  abv: number | string;
-  ibu: number | string;
-  ebc: number | string;
-  ph: number | string;
+  abv: number | null;
+  ibu: number | null;
+  ebc: number | null;
+  ph: number | null;
 }
 
 //STORE TYPES
