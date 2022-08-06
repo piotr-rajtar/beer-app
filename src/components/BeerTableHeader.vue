@@ -3,9 +3,11 @@
     <tr>
       <beer-table-header-cell
         v-for="header in tableHeaders"
+        :header-key="header.key"
+        :header-name="header.name"
         :key="header.key"
-        :header="header"
         :sort-by="sortBy"
+        :data-test-id="`beer-table-header_${header.key}`"
         @sort="onSortClick"
       />
     </tr>

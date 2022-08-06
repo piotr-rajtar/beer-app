@@ -1,5 +1,4 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
-import { ComponentPublicInstance } from 'vue';
 import { isEqual } from 'lodash';
 import { BeerSimplified } from '@/types/typings';
 import { simplifiedBeers } from './mockedBeerData';
@@ -14,7 +13,7 @@ function createWrapper(beerData: BeerSimplified[]) {
 }
 
 describe('BeerTableBody.vue', () => {
-  let wrapper: VueWrapper<ComponentPublicInstance<BeerTableBody>>;
+  let wrapper: VueWrapper<InstanceType<typeof BeerTableBody>>;
   let beerData: BeerSimplified[];
   beforeEach(() => {
     wrapper = createWrapper(simplifiedBeers);

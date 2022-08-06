@@ -14,9 +14,7 @@ import { Vue, prop, Options } from 'vue-class-component';
 import { BeerSimplified } from '@/types/typings';
 
 class Props {
-  beerData: BeerSimplified[] = prop({
-    required: true,
-  });
+  beerData: BeerSimplified[] = prop({ required: true });
 }
 
 @Options({})

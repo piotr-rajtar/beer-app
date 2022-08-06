@@ -1,10 +1,10 @@
 <template>
-  <td :class="style.tableCell" :key="header.key">
-    <span :class="style.tableHeader">{{ header.name }}</span>
+  <td :class="style.tableCell" :key="headerKey">
+    <span :class="style.tableHeader">{{ headerName }}</span>
     <beer-table-sort-button
-      v-if="isSortButtonVisible"
-      :column-header="header.key"
-      :data-test="`sort-button-${header.key}`"
+      v-if="shouldSortButtonRender"
+      :column-header="headerKey"
+      :data-test-id="`sort-button-${headerKey}`"
       :sort-by="sortBy"
       @sort="onSortClick"
     />
@@ -13,17 +13,13 @@
 
 <script lang="ts">
 import { Vue, prop, Options } from 'vue-class-component';
-import { SortDirection, SortOptions, SortBy, TableHeader } from '@/types/typings';
+import { SortDirection, SortOptions, SortBy, TableHeaderKey } from '@/types/typings';
 import BeerTableSortButton from './BeerTableSortButton.vue';
 
 class Props {
-  header: TableHeader = prop({
-    required: true,
-    type: Object,
-  });
-  sortBy: SortBy | null = prop({
-    required: true,
-  });
+  headerKey: TableHeaderKey = prop({ required: true });
+  headerName: string = prop({ required: true });
+  sortBy: SortBy | null = prop({ required: true });
 }
 
 @Options({
@@ -31,17 +27,17 @@ class Props {
   emits: ['sort'],
 })
 export default class BeerTableHeaderCell extends Vue.with(Props) {
-  get isSortButtonVisible(): boolean {
-    return this.header.key !== 'more';
+  get shouldSortButtonRender(): boolean {
+    return this.headerKey !== 'more';
   }
 
   onSortClick(sortDirection: SortDirection): void {
-    if (this.header.key === 'more') {
+    if (this.headerKey === 'more') {
       return;
     }
     const sortOptions: SortOptions = {
       sortDirection: sortDirection,
-      sortBy: this.header.key,
+      sortBy: this.headerKey,
     };
     this.$emit('sort', sortOptions);
   }

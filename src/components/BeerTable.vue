@@ -1,7 +1,7 @@
 <template>
   <table :class="style.table">
-    <beer-table-header :sort-by="sortBy" @sort="onSortClick" />
-    <beer-table-body :beerData="beerData" />
+    <beer-table-header :sort-by="sortBy" data-test-id="beer-table__header" @sort="onSortClick" />
+    <beer-table-body :beer-data="beerData" />
   </table>
 </template>
 
@@ -12,12 +12,8 @@ import BeerTableHeader from './BeerTableHeader.vue';
 import { BeerSimplified, SortOptions, SortBy } from '@/types/typings';
 
 class Props {
-  beerData: BeerSimplified[] = prop({
-    required: true,
-  });
-  sortBy: SortBy | null = prop({
-    required: true,
-  });
+  beerData: BeerSimplified[] = prop({ required: true });
+  sortBy: SortBy | null = prop({ required: true });
 }
 
 @Options({
