@@ -1,6 +1,7 @@
 <template>
   <button
     :class="[style.sortButton, isSortButtonClicked ? style.sortClicked : style.sortNotClicked]"
+    :data-test-id="`beer-table-sort-button__${columnHeader}`"
     @click="onSortButtonClick()"
   >
     {{ sortButtonTitle }}

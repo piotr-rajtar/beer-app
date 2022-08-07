@@ -15,7 +15,7 @@ function createWrapper(headerKey: TableHeaderKey, headerName: string) {
 describe('BeerTableHeaderCell.vue for all headers', () => {
   it('displays correct header name', () => {
     const wrapper = createWrapper('id', 'ID');
-    expect(wrapper.vm.$props.headerName).toBe('ID');
+    expect(wrapper.vm.headerName).toBe('ID');
   });
 });
 
