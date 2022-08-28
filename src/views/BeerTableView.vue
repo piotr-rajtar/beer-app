@@ -6,14 +6,14 @@
   <component
     v-if="isTableVisible"
     :active-page="page"
-    :data-test="navigationType"
+    :data-test-id="navigationType"
     :is="navigationType"
     @load-more="onLoadMoreBeers"
     @next-page="onNextPageClick"
     @prev-page="onPrevPageClick"
   />
   <beer-table-loader v-if="isLoaderVisible" />
-  <the-no-data v-if="isNoDataVisible" data-test="no-data">No beers found</the-no-data>
+  <the-no-data v-if="isNoDataVisible" data-test-id="no-data">No beers found</the-no-data>
 </template>
 
 <script lang="ts">

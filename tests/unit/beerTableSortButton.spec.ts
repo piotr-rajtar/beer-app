@@ -2,7 +2,7 @@ import { shallowMount, VueWrapper } from '@vue/test-utils';
 import BeerTableSortButton from '@/components/BeerTableSortButton.vue';
 import { SortDirection } from '@/types/typings';
 
-describe('BeerTableHeaderCell.vue for all headers', () => {
+describe('BeerTableSortButton.vue', () => {
   let wrapper: VueWrapper<InstanceType<typeof BeerTableSortButton>>;
   beforeEach(() => {
     wrapper = shallowMount(BeerTableSortButton, {
@@ -57,7 +57,6 @@ describe('BeerTableHeaderCell.vue for all headers', () => {
   it('turns sorting off on sortBy prop change', async () => {
     wrapper.vm.sortButtonDirection = SortDirection.ASC;
     await wrapper.setProps({ sortBy: 'id' });
-    console.log(wrapper.vm.sortBy);
     expect(wrapper.vm.sortButtonDirection).toBe(SortDirection.NONE);
   });
 });

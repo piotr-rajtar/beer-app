@@ -18,12 +18,12 @@ class Props {
   computed: mapState(['areAllDataFetched']),
   emits: ['loadMore'],
   watch: {
-    activePage: async function onActivePageChange(newPageNumber: number): Promise<void> {
+    activePage: function onActivePageChange(newPageNumber: number): void {
       if (newPageNumber !== 1) {
         return;
       }
       this.pageNumber = 1;
-      await this.fetchDataInitially();
+      this.fetchDataInitially();
       window.addEventListener('scroll', this.onScroll);
     },
     areAllDataFetched: function onDataFetchCompletion(areAllDataFetched: boolean): void {
@@ -33,8 +33,8 @@ class Props {
       window.removeEventListener('scroll', this.onScroll);
     },
   },
-  mounted: async function onMount(): Promise<void> {
-    await this.fetchDataInitially();
+  mounted: function onMount(): void {
+    this.fetchDataInitially();
     window.addEventListener('scroll', this.onScroll);
   },
   unmounted: function onUnmount(): void {
@@ -66,13 +66,13 @@ export default class BeerTableInfiniteScroll extends Vue.with(Props) {
     this.$emit('loadMore');
   }
 
-  async fetchDataInitially(): Promise<void> {
+  fetchDataInitially(): void {
     for (let counter = 0; counter < this.numberOfInitialFetchNeeded; counter++) {
-      await this.onLoadMore();
+      this.onLoadMore();
     }
   }
 
-  async onScroll(): Promise<void> {
+  onScroll(): void {
     if (this.isFetchNeededAndDataAreLoaded()) {
       this.throttledOnLoadMore();
     }
