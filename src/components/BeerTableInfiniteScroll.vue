@@ -1,5 +1,5 @@
 <template>
-  <span id="test">Bottoms up!</span>
+  <span>Bottoms up!</span>
 </template>
 
 <script lang="ts">

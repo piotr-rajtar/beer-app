@@ -13,7 +13,6 @@ describe('BeerTableInfiniteScroll.vue', () => {
   beforeEach(() => {
     testStore = storeCreator();
     wrapper = shallowMount(BeerTableInfiniteScroll, {
-      attachTo: document.body,
       computed: {
         numberOfInitialFetchNeeded() {
           return 1;
