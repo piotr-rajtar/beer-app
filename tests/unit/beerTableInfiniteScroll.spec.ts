@@ -43,7 +43,7 @@ describe('BeerTableInfiniteScroll.vue', () => {
     expect(removeEventListener).toHaveBeenCalled();
   });
   it('emits "loadMore" event when component mounted', () => {
-    expect(wrapper.emitted().hasOwnProperty('loadMore')).toBe(true);
+    expect(wrapper.emitted()).toHaveProperty('loadMore');
   });
   it('emits "loadMore" event when active page turns to 1', async () => {
     const activePageWatcher = wrapper.vm.$options.watch?.activePage as (pageNumber: number) => void;

@@ -1,52 +1,52 @@
 <template>
   <fieldset :class="style.navTypeContainer">
     <legend>Choose navigation type</legend>
-    <span :class="style.navType">
+    <span v-for="navigationItem in navigationItems" :class="style.navType" :key="navigationItem.id">
       <input
-        id="loadMore"
         v-model="activeDataLoader"
-        :value="DataLoaderType.LOAD_MORE"
+        :id="navigationItem.id"
+        :data-test-id="navigationItem.id"
+        :value="navigationItem.value"
         type="radio"
         @change="onChange"
       />
-      <label for="loadMore">Load more</label>
-    </span>
-    <span>
-      <input
-        id="pagination"
-        v-model="activeDataLoader"
-        :value="DataLoaderType.PAGINATION"
-        type="radio"
-        @change="onChange"
-      />
-      <label for="pagination">Pagination</label>
-    </span>
-    <span>
-      <input
-        id="infiniteScroll"
-        v-model="activeDataLoader"
-        :value="DataLoaderType.INFINITE_SCROLL"
-        type="radio"
-        @change="onChange"
-      />
-      <label for="infiniteScroll">Infinite Scroll</label>
+      <label :for="navigationItem.id">{{ navigationItem.label }}</label>
     </span>
   </fieldset>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { DataLoaderType } from '@/types/typings';
+import { DataLoaderType, NavigationItem } from '@/types/typings';
 
 @Options({
   emits: ['change'],
 })
 export default class BeerTableNavigation extends Vue {
-  DataLoaderType = DataLoaderType;
   activeDataLoader: DataLoaderType = DataLoaderType.LOAD_MORE;
 
   onChange(): void {
     this.$emit('change', this.activeDataLoader);
+  }
+
+  get navigationItems(): Array<NavigationItem> {
+    return [
+      {
+        id: 'loadMore',
+        value: DataLoaderType.LOAD_MORE,
+        label: 'Load more',
+      },
+      {
+        id: 'pagination',
+        value: DataLoaderType.PAGINATION,
+        label: 'Pagination',
+      },
+      {
+        id: 'infiniteScroll',
+        value: DataLoaderType.INFINITE_SCROLL,
+        label: 'Infinite Scroll',
+      },
+    ];
   }
 }
 </script>
