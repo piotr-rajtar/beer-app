@@ -135,6 +135,12 @@ export enum PaginationButtonState {
   PREV,
 }
 
+export interface NavigationItem {
+  id: string;
+  value: DataLoaderType;
+  label: string;
+}
+
 //BEER TABLE TYPES
 export interface TableHeader {
   key: TableHeaderKey;
