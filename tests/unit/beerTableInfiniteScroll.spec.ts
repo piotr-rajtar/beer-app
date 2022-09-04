@@ -1,17 +1,18 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 import BeerTableInfiniteScroll from '@/components/BeerTableInfiniteScroll.vue';
-import { Store } from 'vuex';
-import { State } from '@/types/typings';
-import storeCreator from '@/store/index';
+import { createStore } from 'vuex';
 
 describe('BeerTableInfiniteScroll.vue', () => {
-  let testStore: Store<State>;
   let wrapper: VueWrapper<InstanceType<typeof BeerTableInfiniteScroll>>;
   const addEventListener: jest.SpyInstance = jest.spyOn(window, 'addEventListener');
   const removeEventListener = jest.spyOn(window, 'removeEventListener');
 
   beforeEach(() => {
-    testStore = storeCreator();
+    const store = createStore({
+      state: {
+        areAllDataFetched: false,
+      },
+    });
     wrapper = shallowMount(BeerTableInfiniteScroll, {
       computed: {
         numberOfInitialFetchNeeded() {
@@ -19,7 +20,7 @@ describe('BeerTableInfiniteScroll.vue', () => {
         },
       },
       global: {
-        plugins: [testStore],
+        plugins: [store],
       },
       props: {
         activePage: 2,
