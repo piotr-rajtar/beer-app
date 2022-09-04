@@ -41,6 +41,9 @@ export default class BeerTableLoadMore extends Vue.with(Props) {
   pageNumber: number = 1;
 
   async onLoadMore(): Promise<void> {
+    if (this.$store.state.areAllDataFetched) {
+      return;
+    }
     this.pageNumber++;
     await this.setLoadMoreButtonState();
     this.$emit('loadMore');
