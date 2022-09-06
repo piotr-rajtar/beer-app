@@ -7,9 +7,6 @@ const testPageNumber = 2;
 
 function componentCreator(areAllDataFetched: boolean): void {
   const store = createStore({
-    state: {
-      areAllDataFetched: areAllDataFetched,
-    },
     actions: {
       checkIfNextPageAvailable: jest.fn(() => !areAllDataFetched),
     },
