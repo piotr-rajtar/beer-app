@@ -49,11 +49,17 @@ export default class BeerTablePagination extends Vue.with(Props) {
   pageNumber: number = 1;
 
   onNextClick(): void {
+    if (this.isNextButtonDisabled) {
+      return;
+    }
     this.pageNumber++;
     this.$emit('nextPage');
   }
 
   onPrevClick(): void {
+    if (this.isPrevButtonDisabled) {
+      return;
+    }
     this.pageNumber--;
     this.$emit('prevPage');
   }
@@ -81,9 +87,9 @@ export default class BeerTablePagination extends Vue.with(Props) {
       const isNextPageAvailable: boolean = await this.checkIfNextPageAvailable({
         page: newPage + 1,
       });
-      await this.setButtonsStatus(PaginationButtonState.NEXT, isNextPageAvailable);
+      this.setButtonsStatus(PaginationButtonState.NEXT, isNextPageAvailable);
     } else {
-      await this.setButtonsStatus(PaginationButtonState.PREV, true);
+      this.setButtonsStatus(PaginationButtonState.PREV, true);
     }
   }
 
