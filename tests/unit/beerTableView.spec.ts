@@ -96,7 +96,6 @@ describe('BeerTableView.vue', () => {
   });
 
   it('sets "page" value equal 1 on navigation change', async () => {
-    console.log(wrapper.vm.beersData);
     wrapper.vm.page = 2;
     await wrapper.vm.onNavChange(DataLoaderType.PAGINATION);
     expect(wrapper.vm.page).toBe(1);

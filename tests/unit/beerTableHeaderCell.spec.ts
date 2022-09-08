@@ -21,18 +21,22 @@ describe('BeerTableHeaderCell.vue for all headers', () => {
 
 describe('BeerTableHeaderCell.vue for all headers with "more" header excluded', () => {
   let wrapper: VueWrapper<InstanceType<typeof BeerTableHeaderCell>>;
+
   beforeEach(() => {
     wrapper = createWrapper('ph', 'PH');
   });
+
   it('renders sort button', () => {
     const sortButton = wrapper.find('[data-test-id="sort-button-ph"');
     expect(sortButton.exists()).toBe(true);
   });
+
   it('emits "sort" event when sort button clicked', () => {
     const sortButton = wrapper.find('[data-test-id="sort-button-ph"');
     sortButton.trigger('sort');
     expect(wrapper.emitted()).toHaveProperty('sort');
   });
+
   it('emits correct sort event data when sort button clicked', () => {
     wrapper.vm.onSortClick(SortDirection.ASC);
     expect(wrapper.emitted().sort[0]).toEqual([

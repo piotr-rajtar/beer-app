@@ -31,10 +31,12 @@ describe('BeerTableInfiniteScroll.vue', () => {
   it('adds "scroll" event listener when component mounted', () => {
     expect(addEventListener).toHaveBeenCalled();
   });
+
   it('removes "scroll" event listener when component unmounted', () => {
     wrapper.unmount();
     expect(removeEventListener).toHaveBeenCalled();
   });
+
   it('removes "scroll" event listener when all data fetched', () => {
     const areAllDataFetchedWatcher = wrapper.vm.$options.watch?.areAllDataFetched as (
       areAllDataFetched: boolean
@@ -42,9 +44,11 @@ describe('BeerTableInfiniteScroll.vue', () => {
     areAllDataFetchedWatcher.call(wrapper.vm, true);
     expect(removeEventListener).toHaveBeenCalled();
   });
+
   it('emits "loadMore" event when component mounted', () => {
     expect(wrapper.emitted()).toHaveProperty('loadMore');
   });
+
   it('emits "loadMore" event when active page turns to 1', async () => {
     const activePageWatcher = wrapper.vm.$options.watch?.activePage as (pageNumber: number) => void;
     activePageWatcher.call(wrapper.vm, 1);
