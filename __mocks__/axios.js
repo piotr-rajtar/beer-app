@@ -7,15 +7,10 @@ const beerPayloadFirstPage = [
     brewers_tips:
       'The earthy and floral aromas from the hops can be overpowering. Drop a little Cascade in at the end of the boil to lift the profile with a bit of citrus.',
     contributed_by: 'Sam Mason <samjbmason>',
-    description:
-      'A light, crisp and bitter IPA brewed with English and American hops. A small batch brewed only once.',
+    description: 'A light, crisp and bitter IPA brewed with English and American hops. A small batch brewed only once.',
     ebc: 20,
     first_brewed: '09/2007',
-    food_pairing: [
-      'Spicy chicken tikka masala',
-      'Grilled chicken quesadilla',
-      'Caramel toffee cake',
-    ],
+    food_pairing: ['Spicy chicken tikka masala', 'Grilled chicken quesadilla', 'Caramel toffee cake'],
     ibu: 60,
     id: 1,
     image_url: 'https://images.punkapi.com/v2/keg.png',
@@ -44,11 +39,7 @@ const beerPayloadFirstPage = [
       'An avalanche of cross-continental hop varieties give this porter a complex spicy, resinous and citrusy aroma, with a huge malt bill providing a complex roasty counterpoint. Digging deeper into the flavour draws out cinder toffee, bitter chocolate and hints of woodsmoke.',
     ebc: 219,
     first_brewed: '01/2012',
-    food_pairing: [
-      'Blue cheese beef burger',
-      'Glazed short ribs',
-      'Chocolate cake',
-    ],
+    food_pairing: ['Blue cheese beef burger', 'Glazed short ribs', 'Chocolate cake'],
     ibu: 45,
     id: 16,
     image_url: 'https://images.punkapi.com/v2/16.png',
@@ -103,10 +94,14 @@ const axios = {
     new Promise((res) => {
       const urlParams = url.split('?')[1];
       const searchParams = new URLSearchParams(urlParams);
-      if (searchParams.has('page')) {
-        res({ data: beerPayloadSecondPage });
+      const dataToFetch = {
+        1: beerPayloadFirstPage,
+        2: beerPayloadSecondPage,
+      };
+      if (['1', '2'].includes(searchParams.get('page'))) {
+        res({ data: dataToFetch[searchParams.get('page')] });
       } else {
-        res({ data: beerPayloadFirstPage });
+        res({ data: [] });
       }
     }),
 };

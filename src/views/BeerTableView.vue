@@ -90,7 +90,7 @@ export default class BeerTableView extends Vue {
   }
 
   get isLoaderVisible(): boolean {
-    return !this.isTableVisible && this.$store.state.loadingStatus;
+    return this.$store.state.loadingStatus;
   }
 
   get isNoDataVisible(): boolean {
@@ -136,8 +136,8 @@ export default class BeerTableView extends Vue {
 
   async fetchBeers(): Promise<void> {
     this.setTableInitialState();
-    await this.loadSinglePage(this.queryObject);
     this.setInitialDataFetchingState();
+    await this.loadSinglePage(this.queryObject);
     if (!this.wasFetchButtonEverClicked) {
       this.wasFetchButtonEverClicked = true;
     }
