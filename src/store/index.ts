@@ -5,6 +5,7 @@ import {
   BeerSimplifiedI,
   CachedPage,
   LoadBeerItemPayload,
+  PagingOptions,
   QueryParams,
   SortFunction,
   SortOptions,
@@ -15,14 +16,14 @@ import axios from 'axios';
 import { compare, getErrorMessage, getQueryString, getStartAndEndIndexOfPageItems, getUrlAddress } from '@/utils';
 import { isArray, cloneDeep } from 'lodash';
 
-const state: State = {
-  areAllDataFetched: false,
-  beers: [],
-  cachedBeers: {},
-  loadingStatus: false,
-};
-
 export default function storeCreator(): Store<State> {
+  const state: State = {
+    areAllDataFetched: false,
+    beers: [],
+    cachedBeers: {},
+    loadingStatus: false,
+  };
+
   return createStore({
     state,
     getters: {
@@ -34,9 +35,9 @@ export default function storeCreator(): Store<State> {
         });
       },
 
-      getPaginatedSimplifiedBeersData(_state, getters): (pageNumber: number) => BeerSimplified[] {
-        return (pageNumber) => {
-          const pageIndexes = getStartAndEndIndexOfPageItems(pageNumber);
+      getPaginatedSimplifiedBeersData(_state, getters): (pagingOptions: PagingOptions) => BeerSimplified[] {
+        return (pagingOptions) => {
+          const pageIndexes = getStartAndEndIndexOfPageItems(pagingOptions.pageNumber, pagingOptions.itemsPerPage);
           return getters.getSimplifiedBeersData.slice(pageIndexes.startIndex, pageIndexes.endIndex);
         };
       },
@@ -45,9 +46,12 @@ export default function storeCreator(): Store<State> {
         return (sortOptions) => cloneDeep(getters.getSimplifiedBeersData).sort(compare(sortOptions));
       },
 
-      getPaginatedSortedBeersData(_state, getters): (sortOptions: SortOptions, page: number) => BeerSimplified[] {
-        return (sortOptions, pageNumber) => {
-          const pageIndexes = getStartAndEndIndexOfPageItems(pageNumber);
+      getPaginatedSortedBeersData(
+        _state,
+        getters
+      ): (sortOptions: SortOptions, pagingOptions: PagingOptions) => BeerSimplified[] {
+        return (sortOptions, pagingOptions: PagingOptions) => {
+          const pageIndexes = getStartAndEndIndexOfPageItems(pagingOptions.pageNumber, pagingOptions.itemsPerPage);
           return cloneDeep(getters.getSimplifiedBeersData)
             .sort(compare(sortOptions))
             .slice(pageIndexes.startIndex, pageIndexes.endIndex);
@@ -64,7 +68,7 @@ export default function storeCreator(): Store<State> {
         state.beers = [...state.beers, ...updatedBeersData];
       },
 
-      addSinglePage(state, payload: Beer[]): void {
+      addInitialPage(state, payload: Beer[]): void {
         state.beers = [...payload];
       },
 
@@ -164,10 +168,10 @@ export default function storeCreator(): Store<State> {
         await this.dispatch('loadBeerItems', payload);
       },
 
-      async loadSinglePage(_context, queryParams: QueryParams): Promise<void> {
+      async loadInitialPage(_context, queryParams: QueryParams): Promise<void> {
         const payload: LoadBeerItemPayload = {
           queryParams,
-          addBeersMutation: 'addSinglePage',
+          addBeersMutation: 'addInitialPage',
         };
         await this.dispatch('loadBeerItems', payload);
       },

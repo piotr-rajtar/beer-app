@@ -16,10 +16,10 @@ describe('BeerTableView.vue', () => {
     });
   });
 
-  it('calls "loadSinglePage" action after "beerButton" click', async () => {
-    const loadSinglePage = jest.spyOn(wrapper.vm, 'loadSinglePage');
+  it('calls "loadInitialPage" action after "beerButton" click', async () => {
+    const loadInitialPage = jest.spyOn(wrapper.vm, 'loadInitialPage');
     await wrapper.vm.fetchBeers();
-    expect(loadSinglePage).toHaveBeenCalled();
+    expect(loadInitialPage).toHaveBeenCalled();
   });
 
   it('returns correct isTableVisible getter value when beer data fetched', async () => {
@@ -30,14 +30,14 @@ describe('BeerTableView.vue', () => {
   it('renders no data component when no data fetched', async () => {
     await wrapper.vm.fetchBeers();
     //to mock returning no data from axios
-    wrapper.vm.$store.commit('addSinglePage', []);
+    wrapper.vm.$store.commit('addInitialPage', []);
     expect(wrapper.vm.isNoDataVisible).toBe(true);
   });
 
-  it('calls "loadSinglePage" action after navigation type change', async () => {
-    const loadSinglePage = jest.spyOn(wrapper.vm, 'loadSinglePage');
+  it('calls "loadInitialPage" action after navigation type change', async () => {
+    const loadInitialPage = jest.spyOn(wrapper.vm, 'loadInitialPage');
     await wrapper.vm.onNavChange(DataLoaderType.PAGINATION);
-    expect(loadSinglePage).toHaveBeenCalled();
+    expect(loadInitialPage).toHaveBeenCalled();
   });
 
   it('calls "loadMorePaginedBeers" action on "nextPage" event catch', async () => {
@@ -60,9 +60,9 @@ describe('BeerTableView.vue', () => {
 
   it('sets page number value to 1 on sort click when "pagination" nav type chosen', () => {
     wrapper.vm.navigationType = DataLoaderType.PAGINATION;
-    wrapper.vm.page = 2;
+    wrapper.vm.pageNumber = 2;
     wrapper.vm.onSortClick({ sortBy: 'id', sortDirection: SortDirection.DESC });
-    expect(wrapper.vm.page).toBe(1);
+    expect(wrapper.vm.pageNumber).toBe(1);
   });
 
   it('sets "sortBy" as "null" after "beerButton" click', async () => {
@@ -78,9 +78,9 @@ describe('BeerTableView.vue', () => {
   });
 
   it('sets "page" value equal 1 after "beerButton" click', async () => {
-    wrapper.vm.page = 2;
+    wrapper.vm.pageNumber = 2;
     await wrapper.vm.fetchBeers();
-    expect(wrapper.vm.page).toBe(1);
+    expect(wrapper.vm.pageNumber).toBe(1);
   });
 
   it('sets "sortBy" as "null" on navigation change', async () => {
@@ -96,8 +96,8 @@ describe('BeerTableView.vue', () => {
   });
 
   it('sets "page" value equal 1 on navigation change', async () => {
-    wrapper.vm.page = 2;
+    wrapper.vm.pageNumber = 2;
     await wrapper.vm.onNavChange(DataLoaderType.PAGINATION);
-    expect(wrapper.vm.page).toBe(1);
+    expect(wrapper.vm.pageNumber).toBe(1);
   });
 });

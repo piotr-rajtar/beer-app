@@ -70,7 +70,7 @@ export interface BeerSimplified {
 }
 
 //STORE TYPES
-type AddBeersMutation = 'addMoreBeers' | 'addMorePaginedBeers' | 'addSinglePage';
+type AddBeersMutation = 'addMoreBeers' | 'addMorePaginedBeers' | 'addInitialPage';
 
 type TableKeys = 'id' | 'name' | 'first_brewed' | 'abv' | 'ibu' | 'ebc' | 'ph';
 
@@ -116,6 +116,11 @@ export enum SortDirection {
 export interface SortOptions {
   sortDirection: SortDirection;
   sortBy: SortBy | null;
+}
+
+export interface PagingOptions {
+  pageNumber: number;
+  itemsPerPage: number;
 }
 
 export type SortBy = keyof BeerSimplified;

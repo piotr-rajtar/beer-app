@@ -24,8 +24,7 @@ const getDateFromString = (dateString: string) => {
 export const getErrorMessage = (error: unknown): string =>
   axios.isAxiosError(error) ? `Axios error: ${error.message}` : `Other error: ${new Error().message}`;
 
-export const getStartAndEndIndexOfPageItems = (pageNumber: number): PageIndexes => {
-  const itemsPerPage = 25;
+export const getStartAndEndIndexOfPageItems = (pageNumber: number, itemsPerPage: number): PageIndexes => {
   const endIndex = itemsPerPage * pageNumber;
   const startIndex = endIndex - itemsPerPage;
   return {
