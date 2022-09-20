@@ -1,6 +1,6 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 import BeerTableInfiniteScroll from '@/components/BeerTableInfiniteScroll.vue';
-import { createStore } from 'vuex';
+import storeCreator from '@/store/index';
 
 describe('BeerTableInfiniteScroll.vue', () => {
   let wrapper: VueWrapper<InstanceType<typeof BeerTableInfiniteScroll>>;
@@ -8,11 +8,6 @@ describe('BeerTableInfiniteScroll.vue', () => {
   const removeEventListener = jest.spyOn(window, 'removeEventListener');
 
   beforeEach(() => {
-    const store = createStore({
-      state: {
-        areAllDataFetched: false,
-      },
-    });
     wrapper = shallowMount(BeerTableInfiniteScroll, {
       computed: {
         numberOfInitialFetchNeeded() {
@@ -20,7 +15,7 @@ describe('BeerTableInfiniteScroll.vue', () => {
         },
       },
       global: {
-        plugins: [store],
+        plugins: [storeCreator()],
       },
       props: {
         activePage: 2,
@@ -38,10 +33,7 @@ describe('BeerTableInfiniteScroll.vue', () => {
   });
 
   it('removes "scroll" event listener when all data fetched', () => {
-    const areAllDataFetchedWatcher = wrapper.vm.$options.watch?.areAllDataFetched as (
-      areAllDataFetched: boolean
-    ) => void;
-    areAllDataFetchedWatcher.call(wrapper.vm, true);
+    wrapper.vm.$store.commit('setDataFetchingCompletion');
     expect(removeEventListener).toHaveBeenCalled();
   });
 

@@ -1,17 +1,15 @@
 import { shallowMount, VueWrapper } from '@vue/test-utils';
 import BeerTableView from '@/views/BeerTableView.vue';
-import { Store } from 'vuex';
-import { DataLoaderType, SortDirection, State } from '@/types/typings';
+import { DataLoaderType, SortDirection } from '@/types/typings';
 import storeCreator from '@/store/index';
 
 describe('BeerTableView.vue', () => {
   let wrapper: VueWrapper<InstanceType<typeof BeerTableView>>;
 
   beforeEach(() => {
-    const store: Store<State> = storeCreator();
     wrapper = shallowMount(BeerTableView, {
       global: {
-        plugins: [store],
+        plugins: [storeCreator()],
       },
     });
   });
